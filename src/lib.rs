@@ -29,4 +29,5 @@ macro_rules! define_problem {
     }};
 }
 
+pub mod day01;
 

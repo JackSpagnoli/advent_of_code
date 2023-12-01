@@ -4,6 +4,8 @@ use aoc2023::*;
 
 fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
+        define_problem!(day01::task1, 56506),
+        define_problem!(day01::task2, 56017),
     ];
 
     problems.iter().for_each(check_problem)
