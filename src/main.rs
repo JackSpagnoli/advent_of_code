@@ -6,6 +6,8 @@ fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
         define_problem!(day01::task1, 56506),
         define_problem!(day01::task2, 56017),
+        define_problem!(day02::task1, 2237),
+        define_problem!(day02::task2, 66681),
     ];
 
     problems.iter().for_each(check_problem)

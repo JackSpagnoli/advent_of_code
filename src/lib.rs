@@ -1,3 +1,4 @@
+/* trunk-ignore(clippy/E0554) */
 #![feature(iter_next_chunk)]
 
 pub enum Whole128 {
@@ -30,4 +31,4 @@ macro_rules! define_problem {
 }
 
 pub mod day01;
-
+pub mod day02;
