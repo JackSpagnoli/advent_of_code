@@ -61,15 +61,15 @@ fn parse_line(line: &str) -> Game {
     Game { id: game_id, draws }
 }
 
-fn parse_draw(split: &str) -> Draw {
+fn parse_draw(draw_string: &str) -> Draw {
     let mut draw = Draw {
         red: 0,
         green: 0,
         blue: 0,
     };
 
-    split.split(", ").for_each(|cube| {
-        let regex = Regex::new(r"(?P<value>\d+) (?P<colour>red|blue|green)").unwrap();
+    let regex = Regex::new(r"(?P<value>\d+) (?P<colour>red|blue|green)").unwrap();
+    draw_string.split(", ").for_each(|cube| {
         let captures = regex.captures(cube).unwrap();
         let colour = &captures["colour"];
         let value = captures["value"].parse::<u128>().unwrap();
