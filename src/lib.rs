@@ -32,3 +32,4 @@ macro_rules! define_problem {
 
 pub mod day01;
 pub mod day02;
+pub mod day03;
