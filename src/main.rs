@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use aoc2023::*;
+use advent_of_code::*;
 
 fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
