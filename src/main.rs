@@ -4,10 +4,14 @@ use advent_of_code::*;
 
 fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
+        // 2022
         define_problem!(year2022::day01::task1, 74711),
         define_problem!(year2022::day01::task2, 209481),
         define_problem!(year2022::day02::task1, 13682),
         define_problem!(year2022::day02::task2, 12881),
+        define_problem!(year2022::day03::task1, 7872),
+        define_problem!(year2022::day03::task2, 2497),
+        // 2023
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
         define_problem!(year2023::day02::task1, 2237),
