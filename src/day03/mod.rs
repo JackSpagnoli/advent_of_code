@@ -11,8 +11,10 @@ pub mod task1 {
 }
 
 pub mod task2 {
+    use super::sum_engine_gear_ratios;
+
     pub fn ans() -> u128 {
-        0
+        sum_engine_gear_ratios("resources/day03/input")
     }
 }
 
@@ -24,10 +26,18 @@ struct Number {
     y: usize,
 }
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+enum IsGear {
+    Gear(usize),
+    NotGear,
+    PossibleGear,
+}
+
 #[derive(PartialEq, Debug)]
 struct Symbol {
     x: usize,
     y: usize,
+    is_gear: IsGear,
 }
 
 #[derive(Default, PartialEq, Debug)]
@@ -38,18 +48,13 @@ struct Map {
 
 impl Map {
     fn filter_part_numbers(mut self) -> Self {
-        self.numbers = self
-            .numbers
-            .into_iter()
-            .filter(|number| {
-                let x_range = number.x as isize-1..=(number.x + number.len+1) as isize;
-                let y_range = number.y as isize-1..=(number.y + 1) as isize;
+        self.numbers.retain(|number| {
+            let (x_range, y_range) = get_number_range(number);
 
-                self.symbols.iter().any(|symbol| {
-                    x_range.contains(&(symbol.x as isize)) && y_range.contains(&(symbol.y as isize))
-                })
+            self.symbols.iter().any(|symbol| {
+                x_range.contains(&(symbol.x as isize)) && y_range.contains(&(symbol.y as isize))
             })
-            .collect();
+        });
 
         self
     }
@@ -57,12 +62,90 @@ impl Map {
     fn sum_part_numbers(&self) -> u128 {
         self.numbers.iter().map(|number| number.value).sum()
     }
+
+    fn calculate_gear_ratios(mut self) -> Self {
+        let (possible_gears, not_gears): (Vec<_>, Vec<_>) =
+            self.symbols.into_iter().partition(possible_gear);
+
+        let gears = possible_gears
+            .into_iter()
+            .map(|gear| get_gear_ratio(gear, &self.numbers));
+
+        self.symbols = gears.chain(not_gears).collect();
+
+        self
+    }
+
+    fn sum_gear_ratios(self) -> u128 {
+        self.symbols
+            .iter()
+            .map(|symbol| match symbol.is_gear {
+                IsGear::Gear(ratio) => ratio as u128,
+                IsGear::NotGear => 0,
+                IsGear::PossibleGear => panic!("Possible gear found"),
+            })
+            .sum()
+    }
+}
+
+fn get_number_range(
+    number: &Number,
+) -> (
+    std::ops::RangeInclusive<isize>,
+    std::ops::RangeInclusive<isize>,
+) {
+    let min_x = number.x as isize - 1;
+    let max_x = (number.x + number.len) as isize;
+    let min_y = number.y as isize - 1;
+    let max_y = (number.y + 1) as isize;
+
+    let x_range = min_x..=max_x;
+    let y_range = min_y..=max_y;
+
+    (x_range, y_range)
+}
+
+fn possible_gear(symbol: &Symbol) -> bool {
+    symbol.is_gear == IsGear::PossibleGear
+}
+
+fn get_gear_ratio(gear: Symbol, numbers: &[Number]) -> Symbol {
+    let touching_numbers = numbers
+        .iter()
+        .filter(|number| {
+            let (x_range, y_range) = get_number_range(number);
+
+            x_range.contains(&(gear.x as isize)) && y_range.contains(&(gear.y as isize))
+        })
+        .collect::<Vec<_>>();
+
+    if touching_numbers.len() != 2 {
+        Symbol {
+            x: gear.x,
+            y: gear.y,
+            is_gear: IsGear::NotGear,
+        }
+    } else {
+        Symbol {
+            x: gear.x,
+            y: gear.y,
+            is_gear: IsGear::Gear(
+                touching_numbers[0].value as usize * touching_numbers[1].value as usize,
+            ),
+        }
+    }
 }
 
 fn sum_engine_part_numbers(file: &str) -> u128 {
     let file = fs::read_to_string(file).expect("Could not read file");
 
     parse_file(&file).filter_part_numbers().sum_part_numbers()
+}
+
+fn sum_engine_gear_ratios(file: &str) -> u128 {
+    let file = fs::read_to_string(file).expect("Could not read file");
+
+    parse_file(&file).calculate_gear_ratios().sum_gear_ratios()
 }
 
 fn parse_file(file: &str) -> Map {
@@ -93,9 +176,14 @@ fn parse_number(number: Match, y: usize) -> Number {
 }
 
 fn parse_symbol(symbol: Match, y: usize) -> Symbol {
+    let is_gear = match symbol.as_str() {
+        "*" => IsGear::PossibleGear,
+        _ => IsGear::NotGear,
+    };
     Symbol {
         x: symbol.start(),
         y,
+        is_gear,
     }
 }
 
@@ -208,12 +296,36 @@ mod test {
         ];
 
         let expected_symbols = vec![
-            Symbol { x: 3, y: 1 },
-            Symbol { x: 6, y: 3 },
-            Symbol { x: 3, y: 4 },
-            Symbol { x: 5, y: 5 },
-            Symbol { x: 3, y: 8 },
-            Symbol { x: 5, y: 8 },
+            Symbol {
+                x: 3,
+                y: 1,
+                is_gear: IsGear::PossibleGear,
+            },
+            Symbol {
+                x: 6,
+                y: 3,
+                is_gear: IsGear::NotGear,
+            },
+            Symbol {
+                x: 3,
+                y: 4,
+                is_gear: IsGear::PossibleGear,
+            },
+            Symbol {
+                x: 5,
+                y: 5,
+                is_gear: IsGear::NotGear,
+            },
+            Symbol {
+                x: 3,
+                y: 8,
+                is_gear: IsGear::NotGear,
+            },
+            Symbol {
+                x: 5,
+                y: 8,
+                is_gear: IsGear::PossibleGear,
+            },
         ];
 
         let expected_map = Map {
@@ -307,6 +419,15 @@ mod test {
         let actual = sum_engine_part_numbers("resources/day03/test_input3");
 
         let expected = 156;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_sum_gear_ratios() {
+        let actual = sum_engine_gear_ratios("resources/day03/test_input");
+
+        let expected = 467835;
 
         assert_eq!(actual, expected);
     }
