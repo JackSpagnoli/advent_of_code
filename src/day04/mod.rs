@@ -21,7 +21,8 @@ fn sum_points(file: &str) -> u128 {
 
     file.lines()
         .map(parse_line)
-        .map(|line| line.matching_numbers_count().score())
+        .map(calc_matching_numbers_count)
+        .map(get_line_score)
         .sum::<usize>() as u128
 }
 
@@ -31,18 +32,21 @@ fn sum_copies(file: &str) -> u128 {
     let mut lines = file
         .lines()
         .map(parse_line)
-        .map(|line| line.matching_numbers_count())
+        .map(calc_matching_numbers_count)
         .collect::<Vec<Line>>();
 
     for line_number in 0..lines.len() {
-        let line_wins = lines[line_number].matching_numbers_count;
-        let line_copies = lines[line_number].copies;
-        if line_wins == 0 {
-            continue;
+        let current_line_wins = lines[line_number].matching_numbers_count;
+        let current_line_copies = lines[line_number].copies;
+
+        match current_line_wins {
+            Some(0) | None => continue,
+            Some(line_wins) => {
+                lines[line_number + 1..=line_number + line_wins]
+                    .iter_mut()
+                    .for_each(|line| line.copies += current_line_copies);
+            }
         }
-        lines[line_number + 1..=line_number + line_wins]
-            .iter_mut()
-            .for_each(|line| line.copies += line_copies);
     }
 
     lines.iter().map(|line| line.copies).sum::<usize>() as u128
@@ -52,25 +56,27 @@ fn sum_copies(file: &str) -> u128 {
 struct Line {
     winning_numbers: Vec<usize>,
     card_numbers: Vec<usize>,
-    matching_numbers_count: usize,
+    matching_numbers_count: Option<usize>,
     copies: usize,
 }
 
-impl Line {
-    fn matching_numbers_count(mut self) -> Self {
-        self.matching_numbers_count = self
-            .winning_numbers
+fn calc_matching_numbers_count(line: Line) -> Line {
+    let matching_numbers_count = Some(
+        line.winning_numbers
             .iter()
-            .filter(|number| self.card_numbers.contains(number))
-            .count();
-        self
+            .filter(|number| line.card_numbers.contains(number))
+            .count(),
+    );
+    Line {
+        matching_numbers_count,
+        ..line
     }
+}
 
-    fn score(&self) -> usize {
-        if self.matching_numbers_count == 0 {
-            return 0;
-        }
-        2usize.pow(max(self.matching_numbers_count - 1, 0) as u32)
+fn get_line_score(line: Line) -> usize {
+    match line.matching_numbers_count {
+        Some(0) | None => 0,
+        Some(matching_numbers_count) => 2usize.pow(max(matching_numbers_count - 1, 0) as u32),
     }
 }
 
@@ -78,7 +84,7 @@ fn parse_line(line: &str) -> Line {
     let mut numbers = line.split(':').nth(1).unwrap().split('|');
     let winning_numbers = parse_numbers(numbers.next().unwrap());
     let card_numbers = parse_numbers(numbers.next().unwrap());
-    let matching_numbers_count = 0;
+    let matching_numbers_count = None;
     let copies = 1;
     Line {
         winning_numbers,
@@ -131,11 +137,8 @@ mod test {
         ];
 
         lines.iter().for_each(|(line, expected)| {
-            let parsed_line = parse_line(line);
-            assert_eq!(
-                parsed_line.matching_numbers_count().matching_numbers_count,
-                *expected
-            );
+            let parsed_line = calc_matching_numbers_count(parse_line(line));
+            assert_eq!(parsed_line.matching_numbers_count.unwrap(), *expected);
         });
     }
 
@@ -148,8 +151,8 @@ mod test {
         ];
 
         lines.iter().for_each(|(line, expected)| {
-            let parsed_line = parse_line(line);
-            assert_eq!(parsed_line.matching_numbers_count().score(), *expected);
+            let score = get_line_score(calc_matching_numbers_count(parse_line(line)));
+            assert_eq!(score, *expected);
         });
     }
 
