@@ -4,6 +4,8 @@ use advent_of_code::*;
 
 fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
+        define_problem!(year2022::day01::task1, 74711),
+        define_problem!(year2022::day01::task2, 209481),
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
         define_problem!(year2023::day02::task1, 2237),
