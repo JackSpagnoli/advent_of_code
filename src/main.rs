@@ -15,6 +15,8 @@ fn main() {
         define_problem!(year2022::day04::task2, 936),
         define_string_problem!(year2022::day05::task1, "FWSHSPJWM"),
         define_string_problem!(year2022::day05::task2, "PWPWHGFZS"),
+        define_problem!(year2022::day06::task1, 1210),
+        define_problem!(year2022::day06::task2, 3476),
         // 2023
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
