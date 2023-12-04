@@ -6,6 +6,7 @@ version = 3
 name = "advent-of-code"
 version = "0.1.0"
 dependencies = [
+ "json",
  "pathfinding",
  "regex",
  "substring",
@@ -74,6 +75,12 @@ checksum = "276ec31bcb4a9ee45f58bec6f9ec700ae4cf4f4f8f2fa7e06cb406bd5ffdd770"
 dependencies = [
  "num-traits",
 ]
+
+[[package]]
+name = "json"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd"
 
 [[package]]
 name = "memchr"
