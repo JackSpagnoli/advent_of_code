@@ -19,6 +19,8 @@ fn main() {
         define_problem!(year2022::day06::task2, 3476),
         define_problem!(year2022::day07::task1, 1477771),
         define_problem!(year2022::day07::task2, 3579501),
+        define_problem!(year2022::day08::task1, 1672),
+        define_problem!(year2022::day08::task2, 327180),
         // 2023
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
