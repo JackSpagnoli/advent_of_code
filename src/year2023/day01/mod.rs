@@ -4,7 +4,7 @@ pub mod task1 {
     use super::calc_calibration_values;
 
     pub fn ans() -> u128 {
-        calc_calibration_values("resources/day01/input.txt", false)
+        calc_calibration_values("resources/2023/day01/input.txt", false)
     }
 }
 
@@ -12,7 +12,7 @@ pub mod task2 {
     use super::calc_calibration_values;
 
     pub fn ans() -> u128 {
-        calc_calibration_values("resources/day01/input.txt", true)
+        calc_calibration_values("resources/2023/day01/input.txt", true)
     }
 }
 

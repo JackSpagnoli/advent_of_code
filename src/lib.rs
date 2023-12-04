@@ -8,9 +8,9 @@ pub enum Whole128 {
 
 #[macro_export()]
 macro_rules! define_problem {
-    ($module:ident::$task:ident, $expected:expr) => {{
-        let problem_number = &stringify!($module::$task)[..];
-        use $module::$task::ans as ans_func;
+    ($year:ident::$day:ident::$task:ident, $expected:expr) => {{
+        let problem_number = &stringify!($year::$day::$task)[..];
+        use $year::$day::$task::ans as ans_func;
         let expected_value = $expected;
         if expected_value < 0 {
             let return_function: &dyn Fn() -> Whole128 = &|| Whole128::Signed(ans_func() as i128);
@@ -30,7 +30,4 @@ macro_rules! define_problem {
     }};
 }
 
-pub mod day01;
-pub mod day02;
-pub mod day03;
-pub mod day04;
+pub mod year2023;

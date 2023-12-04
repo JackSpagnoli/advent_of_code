@@ -5,7 +5,7 @@ pub mod task1 {
     use super::sum_possible_games;
 
     pub fn ans() -> u128 {
-        sum_possible_games("resources/day02/input")
+        sum_possible_games("resources/2023/day02/input")
     }
 }
 
@@ -13,7 +13,7 @@ pub mod task2 {
     use super::sum_draw_powers;
 
     pub fn ans() -> u128 {
-        sum_draw_powers("resources/day02/input")
+        sum_draw_powers("resources/2023/day02/input")
     }
 }
 
@@ -220,7 +220,7 @@ mod test {
 
     #[test]
     fn test_sum_possible_games() {
-        let file = "resources/day02/test_input";
+        let file = "resources/2023/day02/test_input";
         let expected = 8;
         let actual = sum_possible_games(file);
         assert_eq!(actual, expected);
@@ -296,7 +296,7 @@ mod test {
 
     #[test]
     fn test_sum_draw_powers() {
-        let file = "resources/day02/test_input";
+        let file = "resources/2023/day02/test_input";
         let expected = 2286;
         let actual = super::sum_draw_powers(file);
         assert_eq!(actual, expected);

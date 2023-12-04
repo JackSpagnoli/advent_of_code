@@ -16,7 +16,7 @@ fn test_line_parsing(){
 fn test_calc_calibration_values(){
     let expected = 142;
 
-    let actual = super::calc_calibration_values("resources/day01/test_input.txt", false);
+    let actual = super::calc_calibration_values("resources/2023/day01/test_input.txt", false);
 
     assert_eq!(expected, actual);
 }
@@ -25,7 +25,7 @@ fn test_calc_calibration_values(){
 fn test_calc_calibration_values_with_words(){
     let expected = 281;
 
-    let actual = super::calc_calibration_values("resources/day01/test_input2.txt", true);
+    let actual = super::calc_calibration_values("resources/2023/day01/test_input2.txt", true);
 
     assert_eq!(expected, actual);
 }

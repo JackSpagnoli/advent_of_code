@@ -4,7 +4,7 @@ pub mod task1 {
     use super::sum_points;
 
     pub fn ans() -> u128 {
-        sum_points("resources/day04/input")
+        sum_points("resources/2023/day04/input")
     }
 }
 
@@ -12,7 +12,7 @@ pub mod task2 {
     use super::sum_copies;
 
     pub fn ans() -> u128 {
-        sum_copies("resources/day04/input")
+        sum_copies("resources/2023/day04/input")
     }
 }
 
@@ -158,11 +158,11 @@ mod test {
 
     #[test]
     fn test_sum_points() {
-        assert_eq!(sum_points("resources/day04/test_input"), 13);
+        assert_eq!(sum_points("resources/2023/day04/test_input"), 13);
     }
 
     #[test]
     fn test_sum_copies() {
-        assert_eq!(sum_copies("resources/day04/test_input"), 30);
+        assert_eq!(sum_copies("resources/2023/day04/test_input"), 30);
     }
 }

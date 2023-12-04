@@ -6,7 +6,7 @@ pub mod task1 {
     use super::sum_engine_part_numbers;
 
     pub fn ans() -> u128 {
-        sum_engine_part_numbers("resources/day03/input")
+        sum_engine_part_numbers("resources/2023/day03/input")
     }
 }
 
@@ -14,7 +14,7 @@ pub mod task2 {
     use super::sum_engine_gear_ratios;
 
     pub fn ans() -> u128 {
-        sum_engine_gear_ratios("resources/day03/input")
+        sum_engine_gear_ratios("resources/2023/day03/input")
     }
 }
 
@@ -228,7 +228,7 @@ mod test {
 
     #[test]
     fn test_parse_lines() {
-        let file = fs::read_to_string("resources/day03/test_input").expect("Could not read file");
+        let file = fs::read_to_string("resources/2023/day03/test_input").expect("Could not read file");
 
         let map = parse_file(&file);
 
@@ -338,7 +338,7 @@ mod test {
 
     #[test]
     fn test_filter_engine_parts() {
-        let file = fs::read_to_string("resources/day03/test_input").expect("Could not read file");
+        let file = fs::read_to_string("resources/2023/day03/test_input").expect("Could not read file");
 
         let map = parse_file(&file).filter_part_numbers();
 
@@ -398,7 +398,7 @@ mod test {
 
     #[test]
     fn test_sum_part_numbers() {
-        let actual = sum_engine_part_numbers("resources/day03/test_input");
+        let actual = sum_engine_part_numbers("resources/2023/day03/test_input");
 
         let expected = 4361;
 
@@ -407,7 +407,7 @@ mod test {
 
     #[test]
     fn test_sum_part_numbers2() {
-        let actual = sum_engine_part_numbers("resources/day03/test_input2");
+        let actual = sum_engine_part_numbers("resources/2023/day03/test_input2");
 
         let expected = 925;
 
@@ -416,7 +416,7 @@ mod test {
 
     #[test]
     fn test_sum_part_numbers3() {
-        let actual = sum_engine_part_numbers("resources/day03/test_input3");
+        let actual = sum_engine_part_numbers("resources/2023/day03/test_input3");
 
         let expected = 156;
 
@@ -425,7 +425,7 @@ mod test {
 
     #[test]
     fn test_sum_gear_ratios() {
-        let actual = sum_engine_gear_ratios("resources/day03/test_input");
+        let actual = sum_engine_gear_ratios("resources/2023/day03/test_input");
 
         let expected = 467835;
 

@@ -4,14 +4,14 @@ use aoc2023::*;
 
 fn main() {
     let problems: Vec<(&dyn Fn() -> Whole128, Whole128, &str)> = vec![
-        define_problem!(day01::task1, 56506),
-        define_problem!(day01::task2, 56017),
-        define_problem!(day02::task1, 2237),
-        define_problem!(day02::task2, 66681),
-        define_problem!(day03::task1, 553079),
-        define_problem!(day03::task2, 84363105),
-        define_problem!(day04::task1, 21088),
-        define_problem!(day04::task2, 6874754),
+        define_problem!(year2023::day01::task1, 56506),
+        define_problem!(year2023::day01::task2, 56017),
+        define_problem!(year2023::day02::task1, 2237),
+        define_problem!(year2023::day02::task2, 66681),
+        define_problem!(year2023::day03::task1, 553079),
+        define_problem!(year2023::day03::task2, 84363105),
+        define_problem!(year2023::day04::task1, 21088),
+        define_problem!(year2023::day04::task2, 6874754),
     ];
 
     problems.iter().for_each(check_problem)
