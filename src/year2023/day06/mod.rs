@@ -1,3 +1,5 @@
+use std::{cmp::Ordering, ops::RangeInclusive};
+
 pub mod task1 {
     use super::margin_of_error;
 
@@ -71,21 +73,32 @@ fn get_margin_of_error(times: Vec<u128>, distances: Vec<u128>) -> u128 {
 fn ways_of_winning((time, distance): (u128, u128)) -> u128 {
     let time_range = 0..=time;
 
-    let lower_limit = time_range
-        .clone()
-        .find(|charging_time| find_distance(charging_time, &time) > distance)
-        .unwrap();
+    let predicate: &Predicate =
+        &move |charging_time| find_distance(charging_time, time).cmp(&distance);
+    let lower_limit = match binary_search(time_range, predicate) {
+        Ok(x) => x + 1,
+        Err(x) => x,
+    };
 
-    let upper_limit = time_range
-        .rev()
-        .find(|charging_time| find_distance(charging_time, &time) > distance)
-        .unwrap();
-
-    upper_limit - lower_limit + 1
+    time - 2 * (lower_limit) + 1
 }
 
-fn find_distance(charging_time: &u128, time: &u128) -> u128 {
+fn find_distance(charging_time: u128, time: u128) -> u128 {
     charging_time * (time - charging_time)
+}
+
+type Predicate = dyn Fn(u128) -> Ordering;
+fn binary_search(range: RangeInclusive<u128>, predicate: &Predicate) -> Result<u128, u128> {
+    let mut range = range;
+    while range.start() != range.end() {
+        let mid = (range.start() + range.end()) / 2;
+        match predicate(mid) {
+            Ordering::Less => range = mid + 1..=*range.end(),
+            Ordering::Greater => range = *range.start()..=mid,
+            Ordering::Equal => return Ok(mid),
+        }
+    }
+    Err(*range.start())
 }
 
 #[cfg(test)]
@@ -100,8 +113,8 @@ mod tests {
         let expected_distances = vec![0, 6, 10, 12, 12, 10, 6, 0];
 
         let distances = charging_times
-            .iter()
-            .map(|charging_time| find_distance(charging_time, &time))
+            .into_iter()
+            .map(|charging_time| find_distance(charging_time, time))
             .collect::<Vec<_>>();
 
         assert_eq!(distances, expected_distances);
