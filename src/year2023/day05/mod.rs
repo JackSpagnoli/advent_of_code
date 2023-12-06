@@ -88,20 +88,16 @@ impl StageMap {
     }
 
     fn map_range(&self, input: SeedRange) -> SeedRanges {
-        let mapped_ranges: Vec<SeedRangeMap> = self
-            .maps
-            .iter()
-            .map(|map| {
-                map.map_range(input)
-            }).collect();
+        let mapped_ranges: Vec<SeedRangeMap> =
+            self.maps.iter().map(|map| map.map_range(input)).collect();
 
-        let mut ranges_map : SeedRangesMap= mapped_ranges
-            .into_iter()
-            .fold(SeedRangesMap{
+        let mut ranges_map: SeedRangesMap = mapped_ranges.into_iter().fold(
+            SeedRangesMap {
                 mapped_input: vec![],
                 mapped_output: vec![],
                 unmapped: vec![],
-            }, |mut acc_map, range_map| {
+            },
+            |mut acc_map, range_map| {
                 if let Some(mapped_input) = range_map.mapped_input {
                     acc_map.mapped_input.push(mapped_input);
                 }
@@ -115,11 +111,16 @@ impl StageMap {
                     acc_map.unmapped.push(unmapped_right);
                 }
                 acc_map
-            });
+            },
+        );
 
         let unmapped_ranges = remove_ranges(ranges_map.unmapped, ranges_map.mapped_input);
 
-        let ranges = ranges_map.mapped_output.into_iter().chain(unmapped_ranges).collect();
+        let ranges = ranges_map
+            .mapped_output
+            .into_iter()
+            .chain(unmapped_ranges)
+            .collect();
 
         SeedRanges { ranges }
     }
@@ -235,15 +236,9 @@ fn lowest_location_number_from_range(file: &str) -> u128 {
 }
 
 fn map_ranges(ranges: Vec<SeedRange>, map: &StageMap) -> Vec<SeedRange> {
-    println!("Using map: {:?}", map);
     ranges
         .into_iter()
-        .flat_map(|range| {
-            println!("Mapping range {:?}", range);
-            let r = map.map_range(range).ranges;
-            println!("To range {:?}\n", r);
-            r
-        })
+        .flat_map(|range| map.map_range(range).ranges)
         .collect()
 }
 
@@ -300,25 +295,28 @@ fn reduce_ranges(ranges: SeedRanges) -> SeedRanges {
 
 fn remove_ranges(ranges: Vec<SeedRange>, to_remove: Vec<SeedRange>) -> Vec<SeedRange> {
     let mut ranges = ranges;
-    for range_to_remove in to_remove{
-        ranges = ranges.into_iter().flat_map(|range| {
-            let intersection = Intersection::from((range, range_to_remove));
-            match intersection.intersection_range {
-                Some(_) => {
-                    let mut new_ranges = vec![];
-                    if let Some(left) = intersection.left {
-                        new_ranges.push(left);
+    for range_to_remove in to_remove {
+        ranges = ranges
+            .into_iter()
+            .flat_map(|range| {
+                let intersection = Intersection::from((range, range_to_remove));
+                match intersection.intersection_range {
+                    Some(_) => {
+                        let mut new_ranges = vec![];
+                        if let Some(left) = intersection.left {
+                            new_ranges.push(left);
+                        }
+                        if let Some(right) = intersection.right {
+                            new_ranges.push(right);
+                        }
+                        new_ranges
                     }
-                    if let Some(right) = intersection.right {
-                        new_ranges.push(right);
-                    }
-                    new_ranges
+                    None => vec![range],
                 }
-                None => vec![range],
-            }
-        }).collect();
+            })
+            .collect();
     }
-    
+
     ranges
 }
 
@@ -392,15 +390,6 @@ mod test {
     #[test]
     fn test_map_ranges2() {
         let map = parse_map("soil-to-fertilizer map:\n0 15 37\n37 52 2\n39 0 15");
-        map.maps.iter().for_each(|m| {
-            println!(
-                "[{},{}] -> [{},{}]",
-                m.input_start,
-                m.input_start + m.range - 1,
-                m.output_start,
-                m.output_start + m.range - 1
-            )
-        });
         let input = vec![
             SeedRange { start: 55, end: 69 },
             SeedRange { start: 79, end: 94 },
@@ -423,15 +412,6 @@ mod test {
     #[test]
     fn test_map_ranges3() {
         let map = parse_map("fertilizer-to-water map:\n49 53 8\n0 11 42\n42 0 7\n57 7 4");
-        map.maps.iter().for_each(|m| {
-            println!(
-                "[{},{}] -> [{},{}]",
-                m.input_start,
-                m.input_start + m.range - 1,
-                m.output_start,
-                m.output_start + m.range - 1
-            )
-        });
         let input = vec![
             SeedRange { start: 55, end: 69 },
             SeedRange { start: 79, end: 94 },
@@ -454,15 +434,6 @@ mod test {
     #[test]
     fn test_map_ranges4() {
         let map = parse_map("water-to-light map:\n88 18 7\n18 25 70");
-        map.maps.iter().for_each(|m| {
-            println!(
-                "[{},{}] -> [{},{}]",
-                m.input_start,
-                m.input_start + m.range - 1,
-                m.output_start,
-                m.output_start + m.range - 1
-            )
-        });
         let input = vec![
             SeedRange { start: 51, end: 69 },
             SeedRange { start: 79, end: 94 },
@@ -485,15 +456,6 @@ mod test {
     #[test]
     fn test_map_ranges5() {
         let map = parse_map("light-to-temperature map:\n45 77 23\n81 45 19\n68 64 13");
-        map.maps.iter().for_each(|m| {
-            println!(
-                "[{},{}] -> [{},{}]",
-                m.input_start,
-                m.input_start + m.range - 1,
-                m.output_start,
-                m.output_start + m.range - 1
-            )
-        });
         let input = vec![
             SeedRange { start: 44, end: 69 },
             SeedRange { start: 72, end: 94 },
@@ -513,15 +475,6 @@ mod test {
     #[test]
     fn test_map_ranges6() {
         let map = parse_map("temperature-to-humidity map:\n0 69 1\n1 0 69");
-        map.maps.iter().for_each(|m| {
-            println!(
-                "[{},{}] -> [{},{}]",
-                m.input_start,
-                m.input_start + m.range - 1,
-                m.output_start,
-                m.output_start + m.range - 1
-            )
-        });
         let input = vec![SeedRange { start: 44, end: 99 }];
 
         let expected = vec![
