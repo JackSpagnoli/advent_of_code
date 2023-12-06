@@ -91,7 +91,7 @@ impl StageMap {
         let mapped_ranges: Vec<SeedRangeMap> =
             self.maps.iter().map(|map| map.map_range(input)).collect();
 
-        let mut ranges_map: SeedRangesMap = mapped_ranges.into_iter().fold(
+        let ranges_map: SeedRangesMap = mapped_ranges.into_iter().fold(
             SeedRangesMap {
                 mapped_input: vec![],
                 mapped_output: vec![],
