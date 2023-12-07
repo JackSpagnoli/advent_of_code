@@ -18,39 +18,25 @@ pub mod task2 {
     }
 }
 
-fn parse_rules(
-    file: &str,
-) -> Vec<(
+type Rule = (
     Vec<isize>,
     Box<dyn Fn(isize) -> isize>,
     usize,
     usize,
     usize,
     usize,
-)> {
+);
+
+fn parse_rules(file: &str) -> Vec<Rule> {
     let contents = fs::read_to_string(file).expect("Error reading file");
 
     let regex = Regex::new(
         r"Monkey \d+:\n  Starting items: (?P<items>(?:\d+,?\s?)+)\n  Operation: new = (?P<operand1>[^ ]+) (?P<operator>.) (?P<operand2>[^ ]+)\n  Test: divisible by (?P<divisor>\d+)\n    If true: throw to monkey (?P<true>\d+)\n    If false: throw to monkey (?P<false>\d+)"
     ).unwrap();
 
-    let mut rules: Vec<(
-        Vec<isize>,
-        Box<dyn Fn(isize) -> isize>,
-        usize,
-        usize,
-        usize,
-        usize,
-    )> = vec![];
+    let mut rules: Vec<Rule> = vec![];
     for capture in regex.captures_iter(&contents) {
-        let mut monkey: (
-            Vec<isize>,
-            Box<dyn Fn(isize) -> isize>,
-            usize,
-            usize,
-            usize,
-            usize,
-        ) = (vec![], Box::new(move |_| 0), 0, 0, 0, 0);
+        let mut monkey: Rule = (vec![], Box::new(move |_| 0), 0, 0, 0, 0);
         for item in capture["items"].split(", ") {
             monkey.0.push(item.parse::<isize>().unwrap());
         }
@@ -68,7 +54,7 @@ fn parse_rules(
         rules.push(monkey);
     }
 
-    return rules;
+    rules
 }
 
 fn generate_closure<'a>(
@@ -85,17 +71,16 @@ fn generate_closure<'a>(
         panic!("Invalid operation");
     }
 
-    let mid_closure: Box<dyn Fn(isize, isize) -> isize>;
-    if operand1 == "old" {
-        mid_closure = Box::new(move |old, b| inner_closure(old, b));
+    let mid_closure: Box<dyn Fn(isize, isize) -> isize> = if operand1 == "old" {
+        Box::new(inner_closure)
     } else {
-        mid_closure = Box::new(move |_, b| inner_closure(operand1.parse::<isize>().unwrap(), b));
-    }
+        Box::new(move |_, b| inner_closure(operand1.parse::<isize>().unwrap(), b))
+    };
 
     if operand2 == "old" {
-        return Box::new(move |old| mid_closure(old, old));
+        Box::new(move |old| mid_closure(old, old))
     } else {
-        return Box::new(move |old| mid_closure(old, operand2.parse::<isize>().unwrap()));
+        Box::new(move |old| mid_closure(old, operand2.parse::<isize>().unwrap()))
     }
 }
 
@@ -110,21 +95,11 @@ fn product_top_worries(file: &str, rounds: usize, divide_by_three: bool) -> u128
 
     inspections.sort_by(|a, b| b.cmp(a));
 
-    return inspections[0] * inspections[1];
+    inspections[0] * inspections[1]
 }
 
-fn make_moves(
-    monkeys: &mut Vec<(
-        Vec<isize>,
-        Box<dyn Fn(isize) -> isize>,
-        usize,
-        usize,
-        usize,
-        usize,
-    )>,
-    divide_by_three: bool,
-) {
-    let divisor = find_divisor(&monkeys);
+fn make_moves(monkeys: &mut Vec<Rule>, divide_by_three: bool) {
+    let divisor = find_divisor(monkeys);
     for i in 0..monkeys.len() {
         monkeys[i].5 += monkeys[i].0.len();
         for item in 0..monkeys[i].0.len() {
@@ -136,31 +111,22 @@ fn make_moves(
             } else {
                 worry %= divisor;
             }
-            let next_monkey;
-            if worry % (monkeys[i].2 as isize) == 0 {
-                next_monkey = monkeys[i].3;
+
+            let next_monkey = if worry % (monkeys[i].2 as isize) == 0 {
+                monkeys[i].3
             } else {
-                next_monkey = monkeys[i].4;
-            }
+                monkeys[i].4
+            };
             monkeys[next_monkey].0.push(worry);
         }
         monkeys[i].0 = vec![];
     }
 }
 
-fn find_divisor(
-    monkeys: &Vec<(
-        Vec<isize>,
-        Box<dyn Fn(isize) -> isize>,
-        usize,
-        usize,
-        usize,
-        usize,
-    )>,
-) -> isize {
+fn find_divisor(monkeys: &Vec<Rule>) -> isize {
     let mut prod: isize = 1;
     for monkey in monkeys {
         prod *= monkey.2 as isize;
     }
-    return prod;
+    prod
 }

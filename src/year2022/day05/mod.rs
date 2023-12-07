@@ -42,11 +42,11 @@ fn process_moves(initial: &str, moves: &str, multiple_pickup: bool) -> String {
     let moves: Vec<[usize; 3]> = split_moves_contents
         .map(|x| -> [usize; 3] {
             let captures = regex.captures(x).unwrap();
-            return [
+            [
                 captures["number"].parse::<usize>().unwrap(),
                 captures["source"].parse::<usize>().unwrap(),
                 captures["destination"].parse::<usize>().unwrap(),
-            ];
+            ]
         })
         .collect();
 

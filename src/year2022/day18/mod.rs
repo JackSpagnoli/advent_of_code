@@ -23,7 +23,7 @@ fn generate_map(file: &str, map: &mut Vec<Vec<Vec<bool>>>) {
     let mut coordinates: Vec<[usize; 3]> = vec![];
     let mut max_x_y_z: [usize; 3] = [0, 0, 0];
     for line in contents.lines() {
-        let mut split_line = line.split(",");
+        let mut split_line = line.split(',');
         let next_x_y_z = [
             split_line.next().unwrap().parse::<usize>().unwrap(),
             split_line.next().unwrap().parse::<usize>().unwrap(),
@@ -38,10 +38,7 @@ fn generate_map(file: &str, map: &mut Vec<Vec<Vec<bool>>>) {
     for _ in 0..=max_x_y_z[0] + 1 {
         let mut temp_2: Vec<Vec<bool>> = vec![];
         for _ in 0..=max_x_y_z[1] + 1 {
-            let mut temp_1: Vec<bool> = vec![];
-            for _ in 0..=max_x_y_z[2] + 1 {
-                temp_1.push(false);
-            }
+            let temp_1: Vec<bool> = vec![false; max_x_y_z[2] + 2];
             temp_2.push(temp_1);
         }
         map.push(temp_2);
@@ -84,14 +81,14 @@ fn count_surface_area(map: &Vec<Vec<Vec<bool>>>) -> usize {
         }
     }
 
-    return surface_area;
+    surface_area
 }
 
 fn surface_area(file: &str) -> usize {
     let mut map: Vec<Vec<Vec<bool>>> = vec![];
     generate_map(file, &mut map);
 
-    return count_surface_area(&map);
+    count_surface_area(&map)
 }
 
 fn exterior_surface_area(file: &str) -> usize {
@@ -99,18 +96,18 @@ fn exterior_surface_area(file: &str) -> usize {
     generate_map(file, &mut map);
     fill_interiors(&mut map);
 
-    return count_surface_area(&map);
+    count_surface_area(&map)
 }
 
 fn fill_interiors(map: &mut Vec<Vec<Vec<bool>>>) {
     let mut checked: Vec<Vec<Vec<bool>>> = vec![];
 
-    for z in 0..map.len() {
+    for slice in map.iter() {
         let mut temp_2: Vec<Vec<bool>> = vec![];
-        for y in 0..map[z].len() {
+        for row in slice {
             let mut temp_1: Vec<bool> = vec![];
-            for x in 0..map[z][y].len() {
-                temp_1.push(map[z][y][x]);
+            for cell in row {
+                temp_1.push(*cell);
             }
             temp_2.push(temp_1);
         }
@@ -121,7 +118,7 @@ fn fill_interiors(map: &mut Vec<Vec<Vec<bool>>>) {
         for y in 0..map[z].len() {
             for x in 0..map[z][y].len() {
                 if !checked[z][y][x] {
-                    let (neighbours, interior) = flood(&map, z, y, x);
+                    let (neighbours, interior) = flood(map, z, y, x);
                     if interior {
                         for (z, y, x) in neighbours {
                             map[z][y][x] = true;
@@ -145,8 +142,8 @@ fn flood(
     x: usize,
 ) -> (Vec<(usize, usize, usize)>, bool) {
     let mut neighbours: Vec<(usize, usize, usize)> = vec![(z, y, x)];
-    let is_interior = recur(&map, &mut neighbours, z, y, x);
-    return (neighbours, is_interior);
+    let is_interior = recur(map, &mut neighbours, z, y, x);
+    (neighbours, is_interior)
 }
 
 fn recur(
@@ -162,37 +159,37 @@ fn recur(
     let mut is_interior = true;
     if z < map.len() - 1 && !neighbours.contains(&(z + 1, y, x)) {
         neighbours.push((z + 1, y, x));
-        if !recur(&map, neighbours, z + 1, y, x) {
+        if !recur(map, neighbours, z + 1, y, x) {
             is_interior = false;
         }
     }
     if y < map[z].len() - 1 && !neighbours.contains(&(z, y + 1, x)) {
         neighbours.push((z, y + 1, x));
-        if !recur(&map, neighbours, z, y + 1, x) {
+        if !recur(map, neighbours, z, y + 1, x) {
             is_interior = false;
         }
     }
     if x < map[z][y].len() - 1 && !neighbours.contains(&(z, y, x + 1)) {
         neighbours.push((z, y, x + 1));
-        if !recur(&map, neighbours, z, y, x + 1) {
+        if !recur(map, neighbours, z, y, x + 1) {
             is_interior = false;
         }
     }
     if z > 0 && !neighbours.contains(&(z - 1, y, x)) {
         neighbours.push((z - 1, y, x));
-        if !recur(&map, neighbours, z - 1, y, x) {
+        if !recur(map, neighbours, z - 1, y, x) {
             is_interior = false;
         }
     }
     if y > 0 && !neighbours.contains(&(z, y - 1, x)) {
         neighbours.push((z, y - 1, x));
-        if !recur(&map, neighbours, z, y - 1, x) {
+        if !recur(map, neighbours, z, y - 1, x) {
             is_interior = false;
         }
     }
     if x > 0 && !neighbours.contains(&(z, y, x - 1)) {
         neighbours.push((z, y, x - 1));
-        if !recur(&map, neighbours, z, y, x - 1) {
+        if !recur(map, neighbours, z, y, x - 1) {
             is_interior = false;
         }
     }
@@ -207,5 +204,5 @@ fn recur(
         is_interior = false;
     }
 
-    return is_interior;
+    is_interior
 }

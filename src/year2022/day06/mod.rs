@@ -19,7 +19,7 @@ pub mod task2 {
 fn length_to_distinct_sequence(file: &str, length: usize) -> u32 {
     let input_contents = fs::read_to_string(file).expect("Error reading file");
     let binding = input_contents.lines().collect::<Vec<&str>>();
-    let mut line = binding.get(0).unwrap().chars();
+    let mut line = binding.first().unwrap().chars();
 
     let mut i: u32 = length as u32;
     while line.size_hint().1.unwrap() >= length {
@@ -30,7 +30,7 @@ fn length_to_distinct_sequence(file: &str, length: usize) -> u32 {
         next_four.retain(|x: &char| {
             let is_seen = seen.contains(x);
             seen.insert(*x);
-            return !is_seen;
+            !is_seen
         });
         if next_four.len() == length {
             return i;
@@ -39,9 +39,9 @@ fn length_to_distinct_sequence(file: &str, length: usize) -> u32 {
         i += 1;
         line.next();
     }
-    return 0;
+    0
 }
 
 fn length_to_packet_start(file: &str) -> u32 {
-    return length_to_distinct_sequence(file, 4);
+    length_to_distinct_sequence(file, 4)
 }

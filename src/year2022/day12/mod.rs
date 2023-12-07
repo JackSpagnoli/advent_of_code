@@ -52,7 +52,7 @@ fn successors(
         orthogonal_paths.push((y, x - 1));
     }
     // println!("({y},{x}) : {orthogonal_paths:?}");
-    return orthogonal_paths.into_iter().map(|p| (p, 1)).collect();
+    orthogonal_paths.into_iter().map(|p| (p, 1)).collect()
 }
 
 fn find_shortest_path(file: &str) -> usize {
@@ -63,7 +63,7 @@ fn find_shortest_path(file: &str) -> usize {
         |p| *p == destination_pos,
     )
     .expect("No path");
-    return result.1;
+    result.1
 }
 
 fn find_shortest_path_to_low_ground(file: &str) -> usize {
@@ -74,10 +74,13 @@ fn find_shortest_path_to_low_ground(file: &str) -> usize {
         |&(y, x)| height_map[y][x] == 0,
     )
     .expect("No path");
-    return result.1;
+    result.1
 }
 
-fn generate_height_map(file: &str) -> (Vec<Vec<isize>>, (usize, usize), (usize, usize)) {
+
+type HeightMap = Vec<Vec<isize>>;
+type Point = (usize, usize);
+fn generate_height_map(file: &str) -> (HeightMap, Point, Point) {
     let contents = fs::read_to_string(file).expect("Error reading file");
     let lines = contents.lines();
 
@@ -85,8 +88,7 @@ fn generate_height_map(file: &str) -> (Vec<Vec<isize>>, (usize, usize), (usize, 
     let mut end_point: (usize, usize) = (0, 0);
     let mut start_point: (usize, usize) = (0, 0);
 
-    let mut j = 0;
-    for line in lines {
+    for (j, line) in lines.enumerate() {
         let mut i = 0;
         height_map.push(
             line.chars()
@@ -99,11 +101,10 @@ fn generate_height_map(file: &str) -> (Vec<Vec<isize>>, (usize, usize), (usize, 
                         start_point = (j, i - 1);
                         return 0;
                     }
-                    return (x as isize) - 97;
+                    (x as isize) - 97
                 })
                 .collect(),
         );
-        j += 1;
     }
-    return (height_map, end_point, start_point);
+    (height_map, end_point, start_point)
 }

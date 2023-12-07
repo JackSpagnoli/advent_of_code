@@ -35,7 +35,7 @@ fn calculate_directory_sizes(file: &str, directories: &mut Vec<u128>) {
     let mut hash_map: HashMap<String, u128> = HashMap::new();
     loop {
         let cmd_option = lines.next();
-        if cmd_option == None {
+        if cmd_option.is_none() {
             break;
         }
         let cmd = cmd_option.unwrap();
@@ -59,13 +59,13 @@ fn calculate_directory_sizes(file: &str, directories: &mut Vec<u128>) {
                 .0
                 != "$"
             {
-                let item = lines.next().unwrap_or(&" ");
+                let item = lines.next().unwrap_or(" ");
                 if item == " " {
                     break;
                 }
                 if item.split_at(3).0 != "dir" {
                     directory_size +=
-                        u128::from_str_radix(item.split(" ").next().unwrap(), 10).unwrap();
+                        item.split(' ').next().unwrap().parse::<u128>().unwrap();
                 }
             }
             hash_map
@@ -104,17 +104,17 @@ fn sum_large_directories(directories: &Vec<u128>, max_size: u128) -> u128 {
             sum += size;
         }
     }
-    return sum;
+    sum
 }
 
-fn find_smallest_sufficient_directory(directories: &mut Vec<u128>, required_space: u128) -> u128 {
+fn find_smallest_sufficient_directory(directories: &mut [u128], required_space: u128) -> u128 {
     directories.sort();
     let iter_dir = directories.iter().rev();
 
     let necessary_deletion = required_space - (70000000u128 - iter_dir.clone().next().unwrap());
 
-    return *iter_dir
+    *iter_dir
         .filter(|x| x >= &&necessary_deletion)
         .last()
-        .unwrap();
+        .unwrap()
 }

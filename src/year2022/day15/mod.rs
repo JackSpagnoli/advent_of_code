@@ -38,7 +38,7 @@ fn tuning_frequency(file: &str, range: isize) -> isize {
             }
         }
     }
-    return 0;
+    0
 }
 
 fn in_range(coordinates: (isize, isize), range: isize) -> bool {
@@ -55,18 +55,19 @@ fn beaconless_spaces(file: &str, row: usize) -> usize {
         }
     }
 
-    for i in 0..beacon_coordinates.len() {
-        if beacon_coordinates[i].0 == (row as isize) {
+    for beacon_coordinate in beacon_coordinates {
+        if beacon_coordinate.0 == (row as isize) {
             spaces -= 1;
         }
     }
 
-    return spaces;
+    spaces
 }
 
+type Coordinate = (isize, isize);
 fn sensor_coordinate_pairs(
     file: &str
-) -> (Vec<((isize, isize), isize)>, Vec<(isize, isize)>, (isize, isize)) {
+) -> (Vec<(Coordinate, isize)>, Vec<Coordinate>, Coordinate) {
     let contents = fs::read_to_string(file).expect("Error reading file");
     let regex = Regex::new(
         r"Sensor at x=(?P<s_x>-?\d+), y=(?P<s_y>\d+): closest beacon is at x=(?P<b_x>-?\d+), y=(?P<b_y>\d+)"
@@ -96,24 +97,24 @@ fn sensor_coordinate_pairs(
         }
     }
 
-    return (sensor_coordinates, beacon_coordinates, (min_x - max_distance, max_x + max_distance));
+    (sensor_coordinates, beacon_coordinates, (min_x - max_distance, max_x + max_distance))
 }
 
 fn l1_distance((y_1, x_1): (isize, isize), (y_2, x_2): (isize, isize)) -> isize {
     let dy: isize = y_1 - y_2;
     let dx: isize = x_1 - x_2;
-    return max(dy, -dy) + max(dx, -dx);
+    max(dy, -dy) + max(dx, -dx)
 }
 
 fn has_sensor_in_range(
     (y, x): (isize, isize),
     sensor_coordinates: &Vec<((isize, isize), isize)>
 ) -> bool {
-    for i in 0..sensor_coordinates.len() {
-        let (coordinates, distance) = sensor_coordinates[i];
-        if l1_distance(coordinates, (y, x)) <= distance {
+    for sensor_coordinate in sensor_coordinates {
+        let (coordinates, distance) = sensor_coordinate;
+        if l1_distance(*coordinates, (y, x)) <= *distance {
             return true;
         }
     }
-    return false;
+    false
 }

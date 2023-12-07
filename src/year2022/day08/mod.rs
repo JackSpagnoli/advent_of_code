@@ -37,12 +37,12 @@ fn count_visible_trees(trees: &Vec<Vec<u32>>) -> u32 {
     let mut visible_trees: u32 = 0;
     for j in 0..trees.len() {
         for i in 0..trees[0].len() {
-            if is_visible(&trees, i, j) {
+            if is_visible(trees, i, j) {
                 visible_trees += 1;
             }
         }
     }
-    return visible_trees;
+    visible_trees
 }
 
 fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
@@ -73,8 +73,8 @@ fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
     }
 
     visibility = true;
-    for j in y + 1..trees.len() {
-        if trees[j][x] >= h {
+    for row in trees.iter().skip(y + 1) {
+        if row[x] >= h {
             visibility = false;
         }
     }
@@ -83,8 +83,8 @@ fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
     }
 
     visibility = true;
-    for j in 0..y {
-        if trees[j][x] >= h {
+    for row in trees.iter().take(y) {
+        if row[x] >= h {
             visibility = false;
         }
     }
@@ -92,23 +92,23 @@ fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
         return visibility;
     }
 
-    return false;
+    false
 }
 
 fn max_senic_score(trees: &Vec<Vec<u32>>) -> u32 {
     let mut max_score: u32 = 0;
     for y in 0..trees.len() {
         for x in 0..trees[y].len() {
-            let score = scenic_score(&trees, y, x);
+            let score = scenic_score(trees, y, x);
             if score > max_score {
                 max_score = score;
             }
         }
     }
-    return max_score;
+    max_score
 }
 
-fn scenic_score(trees: &Vec<Vec<u32>>, y: usize, x: usize) -> u32 {
+fn scenic_score(trees: &[Vec<u32>], y: usize, x: usize) -> u32 {
     let h = trees[y][x];
     let mut score: u32 = 1;
 
@@ -131,9 +131,9 @@ fn scenic_score(trees: &Vec<Vec<u32>>, y: usize, x: usize) -> u32 {
     score *= k;
     k = 0;
 
-    for j in y + 1..trees.len() {
+    for row in trees.iter().skip(y + 1) {
         k += 1;
-        if trees[j][x] >= h {
+        if row[x] >= h {
             break;
         }
     }
@@ -148,5 +148,5 @@ fn scenic_score(trees: &Vec<Vec<u32>>, y: usize, x: usize) -> u32 {
     }
     score *= k;
 
-    return score;
+    score
 }

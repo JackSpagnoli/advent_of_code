@@ -27,7 +27,7 @@ fn distinct_tail_positions(file: &str, knots: usize) -> usize {
                 }
             }
             acc.push(*pos);
-            return acc;
+            acc
         })
         .len();
 }
@@ -62,7 +62,7 @@ fn process_tail_move(head_pos: (i32, i32), tail_pos: (i32, i32)) -> (i32, i32) {
         tail_move = (1, -1);
     }
 
-    return (tail_pos.0 + tail_move.0, tail_pos.1 + tail_move.1);
+    (tail_pos.0 + tail_move.0, tail_pos.1 + tail_move.1)
 }
 
 fn generate_tail_path(file: &str, knot_count: usize) -> Vec<(i32, i32)> {
@@ -82,7 +82,7 @@ fn generate_tail_path(file: &str, knot_count: usize) -> Vec<(i32, i32)> {
         all_tail_positions.push(knots[knot_count - 1]);
     }
 
-    return all_tail_positions;
+    all_tail_positions
 }
 
 fn generate_moves(file: &str) -> Vec<(i32, i32)> {
@@ -91,7 +91,7 @@ fn generate_moves(file: &str) -> Vec<(i32, i32)> {
 
     let mut moves: Vec<(i32, i32)> = vec!();
     for line in lines {
-        let mut split = line.split(" ");
+        let mut split = line.split(' ');
         let (dir, repeats): (&str, i32) = (
             split.next().unwrap(),
             split.next().unwrap().parse::<i32>().unwrap(),
@@ -107,5 +107,5 @@ fn generate_moves(file: &str) -> Vec<(i32, i32)> {
         }
     }
 
-    return moves;
+    moves
 }

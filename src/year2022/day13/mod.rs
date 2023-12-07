@@ -44,11 +44,11 @@ fn check_file_sorting(file: &str) -> usize {
         line1 = lines.next().unwrap();
         line2 = lines.next().unwrap();
         pair += 1;
-        if lines.next() == None {
+        if lines.next().is_none() {
             break_after_next_pass = true;
         }
     }
-    return sorted_index_sum;
+    sorted_index_sum
 }
 
 fn sorted_pair(element_1: &JsonValue, element_2: &JsonValue) -> isize {
@@ -67,12 +67,14 @@ fn sorted_pair(element_1: &JsonValue, element_2: &JsonValue) -> isize {
         return 1;
     }
     if element_1.is_number() && element_2.is_number() {
-        if element_1.as_usize().unwrap() < element_2.as_usize().unwrap() {
-            return 1;
-        } else if element_1.as_usize().unwrap() == element_2.as_usize().unwrap() {
-            return 0;
-        } else {
-            return -1;
+        match element_1
+            .as_usize()
+            .unwrap()
+            .cmp(&element_2.as_usize().unwrap())
+        {
+            Less => return 1,
+            Greater => return -1,
+            _ => return 0,
         }
     }
     if !element_1.is_array() {
@@ -85,7 +87,7 @@ fn sorted_pair(element_1: &JsonValue, element_2: &JsonValue) -> isize {
         array_2.push(element_2.clone()).expect("Shitters");
         return sorted_pair(element_1, &array_2);
     }
-    return -1;
+    -1
 }
 
 fn decoder_key(file: &str) -> usize {
@@ -109,7 +111,7 @@ fn decoder_key(file: &str) -> usize {
 
         line1 = lines.next().unwrap();
         line2 = lines.next().unwrap();
-        if lines.next() == None {
+        if lines.next().is_none() {
             break_after_next_pass = true;
         }
     }
@@ -120,26 +122,22 @@ fn decoder_key(file: &str) -> usize {
     parsed_lines.sort_by(|a, b| {
         let s = sorted_pair(a, b);
         match s {
-            1 => {
-                return Less;
-            }
-            -1 => {
-                return Greater;
-            }
+            1 => Less,
+            -1 => Greater,
             _ => panic!("Yikes"),
         }
     });
 
     let mut decoder_key: usize = 1;
-    for i in 0..parsed_lines.len() {
-        if parsed_lines[i].dump() == "[[2]]".to_owned() {
+    for (i, parsed_line) in parsed_lines.iter().enumerate() {
+        if parsed_line.dump() == *"[[2]]" {
             decoder_key *= i + 1;
         }
-        if parsed_lines[i].dump() == "[[6]]".to_owned() {
+        if parsed_line.dump() == *"[[6]]" {
             decoder_key *= i + 1;
             return decoder_key;
         }
     }
 
-    return decoder_key;
+    decoder_key
 }

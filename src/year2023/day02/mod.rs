@@ -261,8 +261,7 @@ mod test {
 
     #[test]
     fn test_draw_power() {
-        let draws = vec![
-            (
+        let draws = [(
                 Draw {
                     red: 4,
                     green: 0,
@@ -285,8 +284,7 @@ mod test {
                     blue: 0,
                 },
                 0,
-            ),
-        ];
+            )];
 
         draws.iter().for_each(|(draw, expected)| {
             let actual = super::draw_power(*draw);

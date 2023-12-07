@@ -15,7 +15,9 @@ pub mod task2 {
     use super::draw_image;
 
     pub fn ans() -> String {
-        draw_image("resources/2022/day10/input", 40);
+        let image = draw_image("resources/2022/day10/input", 40);
+        let expected_image = "###...##..#....###..###..####..##..#..#.\n#..#.#..#.#....#..#.#..#....#.#..#.#..#.\n#..#.#....#....#..#.###....#..#..#.#..#.\n###..#.##.#....###..#..#..#...####.#..#.\n#.#..#..#.#....#.#..#..#.#....#..#.#..#.\n#..#..###.####.#..#.###..####.#..#..##..\n";
+        assert_eq!(image, expected_image);
         "RGLRBZAU".to_string()
     }
 }
@@ -40,18 +42,17 @@ fn sum_signal_strength(file: &str, times: Vec<usize>) -> isize {
         }
     }
 
-    return strength;
+    strength
 }
 
 fn draw_image(file: &str, width: isize) -> String {
     let instructions: Vec<(bool, isize)> = read_instructions(file);
 
-    let mut cycle: isize = 0;
     let mut x_reg: isize = 1;
 
     let mut image: String = "".to_string();
 
-    for (add, amount) in instructions {
+    for (cycle, (add, amount)) in (0_isize..).zip(instructions) {
         if cycle % width >= x_reg - 1 && cycle % width <= x_reg + 1 {
             image = image.to_owned() + "#";
         } else {
@@ -62,13 +63,11 @@ fn draw_image(file: &str, width: isize) -> String {
             image = image.to_owned() + "\n";
         }
 
-        cycle += 1;
-
         if add {
             x_reg += amount;
         }
     }
-    return image;
+    image
 }
 
 fn read_instructions(file: &str) -> Vec<(bool, isize)> {
@@ -80,11 +79,11 @@ fn read_instructions(file: &str) -> Vec<(bool, isize)> {
     for line in lines {
         instructions.push((false, 0));
         if line != "noop" {
-            let mut split = line.split(" ");
+            let mut split = line.split(' ');
             split.next();
             instructions.push((true, split.next().unwrap().parse::<isize>().unwrap()));
         }
     }
 
-    return instructions;
+    instructions
 }

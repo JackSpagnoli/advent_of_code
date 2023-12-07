@@ -24,7 +24,7 @@ fn calculate_max_sand_volume(file: &str, solid_floor: bool) -> usize {
         particles += 1;
     }
 
-    return particles;
+    particles
 }
 
 fn simulate_sand_particle(map: &mut Vec<Vec<usize>>, source: (usize, usize)) -> bool {
@@ -87,7 +87,7 @@ fn generate_rock_map(file: &str, solid_floor: bool) -> (Vec<Vec<usize>>, (usize,
     for _ in 0..height + 3 {
         map.push(
             std::iter::repeat(0)
-                .take((width as usize) + 2)
+                .take(width + 2)
                 .collect::<Vec<usize>>(),
         );
     }
@@ -107,9 +107,9 @@ fn generate_rock_map(file: &str, solid_floor: bool) -> (Vec<Vec<usize>>, (usize,
     }
 
     if !solid_floor {
-        return (map, (0, 500 - minx + 1));
+        (map, (0, 500 - minx + 1))
     } else {
-        return (map, (0, 500 - minx + 1 + height));
+        (map, (0, 500 - minx + 1 + height))
     }
 }
 
@@ -144,17 +144,17 @@ fn parse_path_line(line: &str) -> Vec<(usize, usize)> {
         }
     }
     rocks.push((corners[corners.len() - 1].0, corners[corners.len() - 1].1));
-    return rocks;
+    rocks
 }
 
 fn extract_coordinates(line: &str) -> Vec<(usize, usize)> {
     let mut all_coordinates: Vec<(usize, usize)> = vec![];
     for coordinate in line.split(" -> ") {
-        let mut split = coordinate.split(",");
+        let mut split = coordinate.split(',');
         let mut y_x: (usize, usize) = (0, 0);
         y_x.1 = split.next().unwrap().parse::<usize>().unwrap();
         y_x.0 = split.next().unwrap().parse::<usize>().unwrap();
         all_coordinates.push(y_x);
     }
-    return all_coordinates;
+    all_coordinates
 }
