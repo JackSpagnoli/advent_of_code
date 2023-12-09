@@ -77,7 +77,7 @@ impl Map {
 fn get_looping_instructions(
     instructions: &[Instruction],
 ) -> impl Iterator<Item = (usize, &Instruction)> {
-    instructions.clone()
+    instructions
         .iter()
         .cycle()
         .enumerate()
@@ -120,10 +120,9 @@ fn parse_nodes(lines: &mut dyn Iterator<Item = &str>) -> HashMap<String, Node> {
 }
 
 fn parse_line(line: &str) -> (NodeId, Node) {
-    let regex = regex::Regex::new(
-        r"(?P<node_index>.+) = \((?P<left_index>.+), (?P<right_index>.+)\)",
-    )
-    .unwrap();
+    let regex =
+        regex::Regex::new(r"(?P<node_index>.+) = \((?P<left_index>.+), (?P<right_index>.+)\)")
+            .unwrap();
     let captures = regex.captures(line).unwrap();
     let node_index = captures.name("node_index").unwrap().as_str().to_string();
     let left_index = captures.name("left_index").unwrap().as_str().to_string();
