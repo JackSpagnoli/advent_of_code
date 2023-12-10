@@ -1,5 +1,5 @@
 /* trunk-ignore(clippy/E0554) */
-#![feature(iter_next_chunk)]
+#![feature(iter_next_chunk, int_roundings)]
 
 pub enum ProblemAnswer {
     Signed(i128),
@@ -14,14 +14,16 @@ macro_rules! define_problem {
         use $year::$day::$task::ans as ans_func;
         let expected_value = $expected;
         if expected_value < 0 {
-            let return_function: &dyn Fn() -> ProblemAnswer = &|| ProblemAnswer::Signed(ans_func() as i128);
+            let return_function: &dyn Fn() -> ProblemAnswer =
+                &|| ProblemAnswer::Signed(ans_func() as i128);
             (
                 return_function,
                 ProblemAnswer::Signed(expected_value as i128),
                 problem_number,
             )
         } else {
-            let return_function: &dyn Fn() -> ProblemAnswer = &|| ProblemAnswer::Unsigned(ans_func() as u128);
+            let return_function: &dyn Fn() -> ProblemAnswer =
+                &|| ProblemAnswer::Unsigned(ans_func() as u128);
             (
                 return_function,
                 ProblemAnswer::Unsigned(expected_value as u128),
@@ -37,12 +39,13 @@ macro_rules! define_string_problem {
         let problem_number = &stringify!($year::$day::$task)[..];
         use $year::$day::$task::ans as ans_func;
         let expected_value = $expected;
-        let return_function: &dyn Fn() -> ProblemAnswer = &|| ProblemAnswer::String(ans_func() as String);
-            (
-                return_function,
-                ProblemAnswer::String(expected_value.to_string()),
-                problem_number,
-            )
+        let return_function: &dyn Fn() -> ProblemAnswer =
+            &|| ProblemAnswer::String(ans_func() as String);
+        (
+            return_function,
+            ProblemAnswer::String(expected_value.to_string()),
+            problem_number,
+        )
     }};
 }
 
