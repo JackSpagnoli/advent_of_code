@@ -80,9 +80,15 @@ fn check_problem(problem: &(&dyn Fn() -> ProblemAnswer, ProblemAnswer, &str)) {
     println!("Problem {problem_name} took {duration} seconds");
 
     match (actual_result, expected) {
-        (ProblemAnswer::Signed(actual), ProblemAnswer::Signed(expected)) => assert_eq!(actual, *expected),
-        (ProblemAnswer::Unsigned(actual), ProblemAnswer::Unsigned(expected)) => assert_eq!(actual, *expected),
-        (ProblemAnswer::String(actual), ProblemAnswer::String(expected)) => assert_eq!(actual, *expected),
+        (ProblemAnswer::Signed(actual), ProblemAnswer::Signed(expected)) => {
+            assert_eq!(actual, *expected)
+        }
+        (ProblemAnswer::Unsigned(actual), ProblemAnswer::Unsigned(expected)) => {
+            assert_eq!(actual, *expected)
+        }
+        (ProblemAnswer::String(actual), ProblemAnswer::String(expected)) => {
+            assert_eq!(actual, *expected)
+        }
         _ => panic!("Expected return type does not match actual return type"),
     }
 }

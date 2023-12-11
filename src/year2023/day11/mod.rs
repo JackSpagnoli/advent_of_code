@@ -18,7 +18,7 @@ pub mod task2 {
     }
 }
 
-fn pair_distances(file:&str, distance_factor: usize) -> u128{
+fn pair_distances(file: &str, distance_factor: usize) -> u128 {
     parse_file(file, distance_factor).sum_distance_pairs() as u128
 }
 
@@ -46,7 +46,7 @@ impl Galaxies {
             .filter(|c| y_diff.contains(c))
             .count();
 
-        x_diff.count() + y_diff.count() + (empty_cols + empty_rows) * (self.distance_factor-1)
+        x_diff.count() + y_diff.count() + (empty_cols + empty_rows) * (self.distance_factor - 1)
     }
 
     fn sum_distance_pairs(&self) -> usize {
