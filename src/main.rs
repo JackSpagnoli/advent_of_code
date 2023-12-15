@@ -68,6 +68,8 @@ fn main() {
         define_problem!(year2023::day13::task2, 33054),
         define_problem!(year2023::day14::task1, 113456),
         define_problem!(year2023::day14::task2, 118747),
+        define_problem!(year2023::day15::task1, 513643),
+        define_problem!(year2023::day15::task2, 265345),
     ];
 
     problems.iter().for_each(check_problem)
