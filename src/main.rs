@@ -62,7 +62,7 @@ fn main() {
         define_problem!(year2023::day10::task2, 455),
         define_problem!(year2023::day11::task1, 9974721),
         define_problem!(year2023::day11::task2, 702770569197u128),
-        // define_problem!(year2023::day12::task1, 7344),
+        define_problem!(year2023::day12::task1, 7344),
         // define_problem!(year2023::day12::task2, 1088006519007u128),
         define_problem!(year2023::day13::task1, 34918),
         define_problem!(year2023::day13::task2, 33054),
@@ -70,6 +70,8 @@ fn main() {
         define_problem!(year2023::day14::task2, 118747),
         define_problem!(year2023::day15::task1, 513643),
         define_problem!(year2023::day15::task2, 265345),
+        define_problem!(year2023::day16::task1, 6978),
+        define_problem!(year2023::day16::task2, 7315),
     ];
 
     problems.iter().for_each(check_problem)
