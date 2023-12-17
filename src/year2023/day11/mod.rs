@@ -70,7 +70,7 @@ fn parse_file(file: &str, distance_factor: usize) -> Galaxies {
     let mut empty_cols: Vec<usize> = Vec::new();
 
     contents.lines().enumerate().for_each(|(row_index, line)| {
-        let empty = line.clone().chars().all(|c| c == '.');
+        let empty = line.chars().all(|c| c == '.');
         if empty {
             empty_rows.push(row_index);
             return;
