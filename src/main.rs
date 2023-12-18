@@ -72,8 +72,8 @@ fn main() {
         define_problem!(year2023::day15::task2, 265345),
         define_problem!(year2023::day16::task1, 6978),
         define_problem!(year2023::day16::task2, 7315),
-        // define_problem!(year2023::day17::task1, 698),
-        // define_problem!(year2023::day17::task2, 0),
+        define_problem!(year2023::day17::task1, 698),
+        define_problem!(year2023::day17::task2, 825),
         define_problem!(year2023::day18::task1, 53844),
         define_problem!(year2023::day18::task2, 42708339569950u128),
     ];
