@@ -1,6 +1,12 @@
 /* trunk-ignore(clippy/E0554) */
 #![feature(iter_next_chunk, int_roundings)]
 
+pub type ProblemDefinition = (
+    &'static dyn Fn() -> ProblemAnswer,
+    ProblemAnswer,
+    &'static str,
+);
+
 pub enum ProblemAnswer {
     Signed(i128),
     Unsigned(u128),

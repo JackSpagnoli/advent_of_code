@@ -63,7 +63,7 @@ fn main() {
         define_problem!(year2023::day11::task1, 9974721),
         define_problem!(year2023::day11::task2, 702770569197u128),
         define_problem!(year2023::day12::task1, 7344),
-        // define_problem!(year2023::day12::task2, 1088006519007u128),
+        define_problem!(year2023::day12::task2, 1088006519007u128),
         define_problem!(year2023::day13::task1, 34918),
         define_problem!(year2023::day13::task2, 33054),
         define_problem!(year2023::day14::task1, 113456),
@@ -78,10 +78,18 @@ fn main() {
         define_problem!(year2023::day18::task2, 42708339569950u128),
     ];
 
-    problems.iter().for_each(check_problem)
+    let mut durations:Vec<(usize, f32)> = problems.iter().map(check_problem).enumerate().collect();
+
+    durations.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    println!("\n\nThe 5 slowest problems are:");
+    for (index, duration) in durations.iter().take(5) {
+        let problem_name = problems[*index].2;
+        println!("Problem {} took {} seconds", problem_name, duration);
+    }
+
 }
 
-fn check_problem(problem: &(&dyn Fn() -> ProblemAnswer, ProblemAnswer, &str)) {
+fn check_problem(problem: &ProblemDefinition) -> f32 {
     let problem_function = problem.0;
     let expected = &problem.1;
     let problem_name = problem.2;
@@ -95,14 +103,16 @@ fn check_problem(problem: &(&dyn Fn() -> ProblemAnswer, ProblemAnswer, &str)) {
 
     match (actual_result, expected) {
         (ProblemAnswer::Signed(actual), ProblemAnswer::Signed(expected)) => {
-            assert_eq!(actual, *expected)
+            assert_eq!(actual, *expected);
         }
         (ProblemAnswer::Unsigned(actual), ProblemAnswer::Unsigned(expected)) => {
-            assert_eq!(actual, *expected)
+            assert_eq!(actual, *expected);
         }
         (ProblemAnswer::String(actual), ProblemAnswer::String(expected)) => {
-            assert_eq!(actual, *expected)
+            assert_eq!(actual, *expected);
         }
         _ => panic!("Expected return type does not match actual return type"),
     }
+
+    duration
 }
