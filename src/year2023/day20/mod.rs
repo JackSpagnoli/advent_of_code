@@ -438,10 +438,7 @@ fn populate_conjunction_feeders(mut modules: ModuleMap) -> ModuleMap {
 }
 
 fn is_conjunction(module: &&Module) -> bool {
-    match module {
-        Module::Conjunction(..) => true,
-        _ => false,
-    }
+    matches!(module, Module::Conjunction(..))
 }
 
 fn get_connections(module: &Module) -> &Vec<ModuleName> {
