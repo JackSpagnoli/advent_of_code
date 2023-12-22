@@ -20,7 +20,7 @@ pub mod task2 {
 
 fn successors(
     (y, x): (usize, usize),
-    height_map: &Vec<Vec<isize>>,
+    height_map: &[Vec<isize>],
     up_limit: bool,
 ) -> Vec<((usize, usize), usize)> {
     if y >= height_map.len() || x >= height_map[0].len() {

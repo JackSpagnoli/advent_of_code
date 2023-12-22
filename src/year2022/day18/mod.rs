@@ -49,7 +49,7 @@ fn generate_map(file: &str, map: &mut Vec<Vec<Vec<bool>>>) {
     }
 }
 
-fn count_surface_area(map: &Vec<Vec<Vec<bool>>>) -> usize {
+fn count_surface_area(map: &[Vec<Vec<bool>>]) -> usize {
     let mut surface_area: usize = 0;
 
     for z in 0..map.len() - 1 {

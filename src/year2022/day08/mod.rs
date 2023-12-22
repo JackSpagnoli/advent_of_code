@@ -33,7 +33,7 @@ fn read_trees(trees: &mut Vec<Vec<u32>>, file: &str) {
     }
 }
 
-fn count_visible_trees(trees: &Vec<Vec<u32>>) -> u32 {
+fn count_visible_trees(trees: &[Vec<u32>]) -> u32 {
     let mut visible_trees: u32 = 0;
     for j in 0..trees.len() {
         for i in 0..trees[0].len() {
@@ -45,7 +45,7 @@ fn count_visible_trees(trees: &Vec<Vec<u32>>) -> u32 {
     visible_trees
 }
 
-fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
+fn is_visible(trees: &[Vec<u32>], x: usize, y: usize) -> bool {
     let h = trees[y][x];
 
     if x == 0 || y == 0 || x == trees[0].len() - 1 || y == trees.len() - 1 {
@@ -95,7 +95,7 @@ fn is_visible(trees: &Vec<Vec<u32>>, x: usize, y: usize) -> bool {
     false
 }
 
-fn max_senic_score(trees: &Vec<Vec<u32>>) -> u32 {
+fn max_senic_score(trees: &[Vec<u32>]) -> u32 {
     let mut max_score: u32 = 0;
     for y in 0..trees.len() {
         for x in 0..trees[y].len() {

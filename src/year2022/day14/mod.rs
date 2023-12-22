@@ -27,7 +27,7 @@ fn calculate_max_sand_volume(file: &str, solid_floor: bool) -> usize {
     particles
 }
 
-fn simulate_sand_particle(map: &mut Vec<Vec<usize>>, source: (usize, usize)) -> bool {
+fn simulate_sand_particle(map: &mut [Vec<usize>], source: (usize, usize)) -> bool {
     let mut pos = source;
     loop {
         if pos.0 + 1 >= map.len() || map[pos.0][pos.1] == 2 {
