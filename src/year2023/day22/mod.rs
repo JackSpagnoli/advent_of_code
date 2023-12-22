@@ -12,12 +12,57 @@ pub mod task1 {
 }
 
 pub mod task2 {
-    // use super::number_of_tiles_repeating;
+    use super::sum_chain_reaction;
 
     pub fn ans() -> u128 {
-        // number_of_tiles_repeating("resources/2023/day21/input", 26501365)
-        1
+        sum_chain_reaction("resources/2023/day22/input")
     }
+}
+
+fn sum_chain_reaction(file: &str) -> u128 {
+    let blocks = parse_file(file);
+
+    let blocks = fall_blocks(blocks);
+
+    blocks
+        .values()
+        .map(|block| {
+            let mut blocks = blocks.clone();
+            blocks.remove(&block.id);
+            blocks = blocks
+                .into_iter()
+                .map(|(id, mut b)| {
+                    b.supported_by.remove(&block.id);
+                    (id, b)
+                })
+                .collect();
+            chain_reaction(blocks)
+        })
+        .sum()
+}
+
+fn chain_reaction(mut blocks: HashMap<usize, Block>) -> u128 {
+    let block_to_fall = blocks
+        .iter()
+        .filter(|(_, block)| block.z_range.0 > 1)
+        .find(|(_, block)| block.supported_by.is_empty());
+
+    if block_to_fall.is_none() {
+        return 0;
+    }
+
+    let block_to_fall = block_to_fall.unwrap().1.id;
+    blocks.remove(&block_to_fall);
+
+    blocks = blocks
+        .into_iter()
+        .map(|(id, mut b)| {
+            b.supported_by.remove(&block_to_fall);
+            (id, b)
+        })
+        .collect();
+
+    1 + chain_reaction(blocks)
 }
 
 fn disintegratable_blocks(file: &str) -> u128 {
@@ -25,16 +70,7 @@ fn disintegratable_blocks(file: &str) -> u128 {
 
     let blocks = fall_blocks(blocks);
 
-    let mut structural_blocks: HashMap<usize, Vec<usize>> = HashMap::new();
-    blocks.values().for_each(|block| {
-        block.supported_by.iter().for_each(|supporting_block| {
-            structural_blocks
-                .entry(*supporting_block)
-                .or_default()
-                .push(block.id);
-        })
-    });
-
+    let structural_blocks: HashMap<usize, Vec<usize>> = structural_blocks(&blocks);
     let non_structural_blocks = (blocks.len() - structural_blocks.len()) as u128;
 
     let disintegrable_structural_blocks = structural_blocks
@@ -47,6 +83,20 @@ fn disintegratable_blocks(file: &str) -> u128 {
         .count() as u128;
 
     non_structural_blocks + disintegrable_structural_blocks
+}
+
+fn structural_blocks(blocks: &HashMap<usize, Block>) -> HashMap<usize, Vec<usize>> {
+    let mut structural_blocks: HashMap<usize, Vec<usize>> = HashMap::new();
+    blocks.values().for_each(|block| {
+        block.supported_by.iter().for_each(|supporting_block| {
+            structural_blocks
+                .entry(*supporting_block)
+                .or_default()
+                .push(block.id);
+        })
+    });
+
+    structural_blocks
 }
 
 fn fall_blocks(mut blocks: Vec<Block>) -> HashMap<usize, Block> {
@@ -106,7 +156,7 @@ fn can_fall(fallen_blocks: &HashMap<usize, Block>, block: &Block) -> Result<(), 
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct Block {
     id: usize,
     supported_by: HashSet<usize>,
@@ -189,6 +239,51 @@ mod tests {
     #[test]
     fn test_disintegratable_blocks() {
         assert_eq!(disintegratable_blocks("resources/2023/day22/test_input"), 5);
+    }
+
+    #[test]
+    fn test_chain_reaction() {
+        let blocks = parse_file("resources/2023/day22/test_input");
+
+        let mut blocks = fall_blocks(blocks);
+
+        let block_to_fall = 0;
+        blocks.remove(&block_to_fall);
+
+        blocks = blocks
+            .into_iter()
+            .map(|(id, mut b)| {
+                b.supported_by.remove(&block_to_fall);
+                (id, b)
+            })
+            .collect();
+
+        assert_eq!(chain_reaction(blocks), 6);
+    }
+
+    #[test]
+    fn test_chain_reaction2() {
+        let blocks = parse_file("resources/2023/day22/test_input");
+
+        let mut blocks = fall_blocks(blocks);
+
+        let block_to_fall = 1;
+        blocks.remove(&block_to_fall);
+
+        blocks = blocks
+            .into_iter()
+            .map(|(id, mut b)| {
+                b.supported_by.remove(&block_to_fall);
+                (id, b)
+            })
+            .collect();
+
+        assert_eq!(chain_reaction(blocks), 0);
+    }
+
+    #[test]
+    fn test_sum_chain_reaction() {
+        assert_eq!(sum_chain_reaction("resources/2023/day22/test_input"), 7);
     }
 }
 
