@@ -84,6 +84,8 @@ fn main() {
         define_problem!(year2023::day21::task2, 613391294577878u128),
         define_problem!(year2023::day22::task1, 446),
         define_problem!(year2023::day22::task2, 60287),
+        define_problem!(year2023::day23::task1, 2034),
+        define_problem!(year2023::day23::task2, 6302),
     ];
 
     let mut durations:Vec<(usize, f32)> = problems.iter().map(check_problem).enumerate().collect();
