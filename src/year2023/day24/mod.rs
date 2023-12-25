@@ -25,6 +25,8 @@ pub mod task2 {
 fn find_intersecting_path(file: &str) -> u128{
     // This is based on a derivation of the problem that
     // gives a linear system of equations.
+    // Here's a link if you're curious:
+    // https://github.com/JackSpagnoli/advent_of_code/blob/main/resources/2023/day24/derivation.md
     let paths = parse_file(file);
 
     // paths 0,1, and 2 get an off by 1 because of
