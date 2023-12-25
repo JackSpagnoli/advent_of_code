@@ -3,8 +3,7 @@ use std::time::Instant;
 use advent_of_code::*;
 
 fn main() {
-    let problems: Vec<(&dyn Fn() -> ProblemAnswer, ProblemAnswer, &str)> = vec![
-        // 2022
+    let problems_2022: Vec<ProblemDefinition> = vec![
         define_problem!(year2022::day01::task1, 74711),
         define_problem!(year2022::day01::task2, 209481),
         define_problem!(year2022::day02::task1, 13682),
@@ -39,7 +38,8 @@ fn main() {
         // define_problem!(year2022::day16::task2, 0),
         define_problem!(year2022::day18::task1, 4310),
         define_problem!(year2022::day18::task2, 2466),
-        // 2023
+    ];
+    let problems_2023: Vec<ProblemDefinition> = vec![
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
         define_problem!(year2023::day02::task1, 2237),
@@ -63,7 +63,7 @@ fn main() {
         define_problem!(year2023::day11::task1, 9974721),
         define_problem!(year2023::day11::task2, 702770569197u128),
         define_problem!(year2023::day12::task1, 7344),
-        // define_problem!(year2023::day12::task2, 1088006519007u128),
+        define_problem!(year2023::day12::task2, 1088006519007u128),
         define_problem!(year2023::day13::task1, 34918),
         define_problem!(year2023::day13::task2, 33054),
         define_problem!(year2023::day14::task1, 113456),
@@ -92,15 +92,27 @@ fn main() {
         define_problem!(year2023::day25::task2, 0),
     ];
 
+    run_year_problems("2022", problems_2022);
+    run_year_problems("2023", problems_2023);
+}
+
+fn run_year_problems(year: &str, problems: Vec<ProblemDefinition>){
+    println!("\n\nRunning problems for {year}...\n");
+
+    let now = Instant::now();
+
     let mut durations:Vec<(usize, f32)> = problems.iter().map(check_problem).enumerate().collect();
 
+    let duration = now.elapsed().as_secs_f32();
+
+    println!("\n\nProblems for {year} took {duration} seconds");
+
     durations.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-    println!("\n\nThe 5 slowest problems are:");
+    println!("\n\nThe 5 slowest problems of {year} are:");
     for (index, duration) in durations.iter().take(5) {
         let problem_name = problems[*index].2;
         println!("Problem {} took {} seconds", problem_name, duration);
     }
-
 }
 
 fn check_problem(problem: &ProblemDefinition) -> f32 {
