@@ -15,11 +15,9 @@ pub mod task1 {
 }
 
 pub mod task2 {
-    // use super::longest_path;
-
     pub fn ans() -> u128 {
-        // longest_path("resources/2023/day23/input", true)
-        1
+        // Push the button:
+        0
     }
 }
 

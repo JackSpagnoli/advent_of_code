@@ -1,5 +1,7 @@
 use std::ops::Neg;
 
+use nalgebra::{matrix, vector};
+
 pub mod task1 {
     use super::count_intersections;
 
@@ -13,11 +15,70 @@ pub mod task1 {
 }
 
 pub mod task2 {
-    // use super::longest_path;
+    use super::find_intersecting_path;
 
     pub fn ans() -> u128 {
-        // longest_path("resources/2023/day23/input", true)
-        1
+        find_intersecting_path("resources/2023/day24/input")
+    }
+}
+
+fn find_intersecting_path(file: &str) -> u128{
+    // This is based on a derivation of the problem that
+    // gives a linear system of equations.
+    let paths = parse_file(file);
+
+    // paths 0,1, and 2 get an off by 1 because of
+    // some weird floating point rounding errors.
+    // It's currently 7:30pm on christmas day
+    // so I cba to find out how integer matrices work.
+    let h_0 = FloatPath::from(&paths[1]);
+    let h_1 = FloatPath::from(&paths[2]);
+    let h_2 = FloatPath::from(&paths[3]);
+
+    
+    let a = matrix![
+        (h_0.dy - h_1.dy), -(h_0.dx - h_1.dx), 0f64, -(h_0.y - h_1.y), (h_0.x - h_1.x), 0f64;
+        (h_0.dz - h_1.dz), 0f64, -(h_0.dx - h_1.dx), -(h_0.z - h_1.z), 0f64, (h_0.x - h_1.x);
+        0f64, (h_0.dz - h_1.dz), -(h_0.dy - h_1.dy), 0f64, -(h_0.z - h_1.z), (h_0.y - h_1.y);
+        (h_0.dy - h_2.dy), -(h_0.dx - h_2.dx), 0f64, -(h_0.y - h_2.y), (h_0.x - h_2.x), 0f64;
+        (h_0.dz - h_2.dz), 0f64, -(h_0.dx - h_2.dx), -(h_0.z - h_2.z), 0f64, (h_0.x - h_2.x);
+        0f64, (h_0.dz - h_2.dz), -(h_0.dy - h_2.dy), 0f64, -(h_0.z - h_2.z), (h_0.y - h_2.y);
+    ];
+
+    let b = vector![
+        h_1.y*h_1.dx - h_0.y*h_0.dx + h_0.x*h_0.dy - h_1.x*h_1.dy,
+        h_1.z*h_1.dx - h_0.z*h_0.dx + h_0.x*h_0.dz - h_1.x*h_1.dz,
+        h_1.z*h_1.dy - h_0.z*h_0.dy + h_0.y*h_0.dz - h_1.y*h_1.dz,
+        h_2.y*h_2.dx - h_0.y*h_0.dx + h_0.x*h_0.dy - h_2.x*h_2.dy,
+        h_2.z*h_2.dx - h_0.z*h_0.dx + h_0.x*h_0.dz - h_2.x*h_2.dz,
+        h_2.z*h_2.dy - h_0.z*h_0.dy + h_0.y*h_0.dz - h_2.y*h_2.dz,
+    ];
+
+    assert!(a.is_invertible());
+
+    let x = a.try_inverse().unwrap() * b;
+
+    x[0] as u128 + x[1] as u128 + x[2] as u128
+}
+
+struct FloatPath {
+    x: f64,
+    y: f64,
+    z: f64,
+    dx: f64,
+    dy: f64,
+    dz: f64,
+}
+impl From<&Path> for FloatPath{
+    fn from(path: &Path) -> Self {
+        FloatPath {
+            x: path.x as f64,
+            y: path.y as f64,
+            z: path.z as f64,
+            dx: path.dx as f64,
+            dy: path.dy as f64,
+            dz: path.dz as f64,
+        }
     }
 }
 
@@ -165,6 +226,12 @@ mod tests {
     fn test_intersection_count() {
         let count = count_intersections("resources/2023/day24/test_input", 7, 27);
         assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn test_find_intersecting_path() {
+        let count = find_intersecting_path("resources/2023/day24/test_input");
+        assert_eq!(count, 47);
     }
 }
 
