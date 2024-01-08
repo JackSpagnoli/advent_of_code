@@ -117,8 +117,7 @@ Repeating this with $n=1$ we get 3 more equations.
 Subtracting each from their corresponding $n=0$ equation non-linear components are eliminated.
 
 $$
-
-LHS \implies R_{0a}\partial H_{0b} - R_{0a}\partial R_b - H_{0a}^0\partial H_{0b} + H_{0a}^0\partial R_b ...
+\text{LHS } \implies R_{0a}\partial H_{0b} - R_{0a}\partial R_b - H_{0a}^0\partial H_{0b} + H_{0a}^0\partial R_b ...
 $$
 $$
 ... - R_{0a}\partial H_{1b} + R_{0a}\partial R_b + H_{1a}^0\partial H_{1b} - H_{1a}^0\partial R_b
@@ -129,7 +128,7 @@ $$
 $$
 
 $$
-RHS \implies R_{0b}\partial H_{0a} - R_{0b}\partial R_a - H_{0b}^0\partial H_{0a} + H_{0b}^0\partial R_a ...
+\text{RHS } \implies R_{0b}\partial H_{0a} - R_{0b}\partial R_a - H_{0b}^0\partial H_{0a} + H_{0b}^0\partial R_a ...
 $$
 $$
 ... - R_{0b}\partial H_{1a} + R_{0b}\partial R_a + H_{1b}^0\partial H_{1a} - H_{1b}^0\partial R_a
