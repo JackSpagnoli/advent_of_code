@@ -92,16 +92,20 @@ fn main() {
         define_problem!(year2023::day25::task2, 0),
     ];
 
-    run_year_problems("2022", problems_2022);
-    run_year_problems("2023", problems_2023);
+    let problems_2024: Vec<ProblemDefinition> = vec![
+        define_problem!(year2024::day01::task1, 2378066),
+        define_problem!(year2024::day01::task2, 18934359),
+    ];
+
+    run_year_problems("2024", problems_2024);
 }
 
-fn run_year_problems(year: &str, problems: Vec<ProblemDefinition>){
+fn run_year_problems(year: &str, problems: Vec<ProblemDefinition>) {
     println!("\n\nRunning problems for {year}...\n");
 
     let now = Instant::now();
 
-    let mut durations:Vec<(usize, f32)> = problems.iter().map(check_problem).enumerate().collect();
+    let mut durations: Vec<(usize, f32)> = problems.iter().map(check_problem).enumerate().collect();
 
     let duration = now.elapsed().as_secs_f32();
 
