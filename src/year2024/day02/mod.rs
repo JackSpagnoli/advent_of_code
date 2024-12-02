@@ -25,24 +25,31 @@ fn parse_line(line: &str) -> Vec<i128> {
 }
 
 fn is_safe_report(report: &Vec<i128>) -> bool {
-    let mut deltas = report.windows(2).map(|pair| {
-        let a = pair[0];
-        let b = pair[1];
-        (a.cmp(&b), a.abs_diff(b))
-    });
+    let valid_range = 1..=3;
 
-    let acceptable_range = 1..=3;
-
-    let first = deltas.next().unwrap();
-
-    if !acceptable_range.contains(&first.1) {
+    let first_diff = report[0].abs_diff(report[1]);
+    if !valid_range.contains(&first_diff) {
         return false;
     }
-    let order = first.0;
 
-    deltas.all(|(cmp, diff)| {
-        if cmp != order {
-            return false;
+    report.windows(3).all(|values| {
+        let a = values[0];
+        let b = values[1];
+        let c = values[2];
+
+        let left_cmp = a.cmp(&b);
+        let right_cmp = b.cmp(&c);
+
+        let monotonic = left_cmp == right_cmp;
+
+        let right_diff = b.abs_diff(c);
+
+        let valid_diff = valid_range.contains(&right_diff);
+
+        monotonic && valid_diff
+    })
+}
+
         }
 
         acceptable_range.contains(&diff)
