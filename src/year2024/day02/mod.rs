@@ -8,6 +8,14 @@ pub mod task1 {
     }
 }
 
+pub mod task2 {
+    use super::safe_report_count_with_removal;
+
+    pub fn ans() -> u128 {
+        safe_report_count_with_removal("resources/2024/day02/input.txt")
+    }
+}
+
 fn safe_report_count(file: &str) -> u128 {
     fs::read_to_string(file)
         .expect("Error reading file")
@@ -17,6 +25,14 @@ fn safe_report_count(file: &str) -> u128 {
         .count() as u128
 }
 
+fn safe_report_count_with_removal(file: &str) -> u128 {
+    fs::read_to_string(file)
+        .expect("Error reading file")
+        .lines()
+        .map(parse_line)
+        .filter(is_safe_report_with_removal)
+        .count() as u128
+}
 
 fn parse_line(line: &str) -> Vec<i128> {
     line.split_whitespace()
@@ -50,12 +66,17 @@ fn is_safe_report(report: &Vec<i128>) -> bool {
     })
 }
 
+fn is_safe_report_with_removal(report: &Vec<i128>) -> bool {
+    for i in 0..report.len() {
+        let mut new_report = report.clone();
+        new_report.remove(i);
+
+        if is_safe_report(&new_report) {
+            return true;
         }
-
-        acceptable_range.contains(&diff)
-    })
+    }
+    return false;
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -66,4 +87,11 @@ mod tests {
         assert_eq!(safe_report_count("resources/2024/day02/test.txt"), 2);
     }
 
+    #[test]
+    fn test_task_2() {
+        assert_eq!(
+            safe_report_count_with_removal("resources/2024/day02/test.txt"),
+            4
+        );
+    }
 }

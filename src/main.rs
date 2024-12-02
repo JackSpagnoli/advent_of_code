@@ -3,7 +3,7 @@ use std::time::Instant;
 use advent_of_code::*;
 
 fn main() {
-    let problems_2022: Vec<ProblemDefinition> = vec![
+    let _problems_2022: Vec<ProblemDefinition> = vec![
         define_problem!(year2022::day01::task1, 74711),
         define_problem!(year2022::day01::task2, 209481),
         define_problem!(year2022::day02::task1, 13682),
@@ -39,7 +39,7 @@ fn main() {
         define_problem!(year2022::day18::task1, 4310),
         define_problem!(year2022::day18::task2, 2466),
     ];
-    let problems_2023: Vec<ProblemDefinition> = vec![
+    let _problems_2023: Vec<ProblemDefinition> = vec![
         define_problem!(year2023::day01::task1, 56506),
         define_problem!(year2023::day01::task2, 56017),
         define_problem!(year2023::day02::task1, 2237),
@@ -96,6 +96,7 @@ fn main() {
         define_problem!(year2024::day01::task1, 2378066),
         define_problem!(year2024::day01::task2, 18934359),
         define_problem!(year2024::day02::task1, 220),
+        define_problem!(year2024::day02::task2, 296),
     ];
 
     run_year_problems("2024", problems_2024);
