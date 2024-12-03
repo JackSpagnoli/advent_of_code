@@ -130,22 +130,22 @@ fn parse_file(file: &str) -> Network {
 
 #[cfg(test)]
 mod tests {
-    use petgraph::dot::{Config, Dot};
+    // use petgraph::dot::{Config, Dot};
 
     use super::*;
 
-    #[test]
-    fn test_parse_file() {
-        let graph = parse_file("resources/2023/day25/test_input");
+    // #[test]
+    // fn test_parse_file() {
+    //     let graph = parse_file("resources/2023/day25/test_input");
 
-        // println!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel]));
-        // write graphviz to a file
-        std::fs::write(
-            "resources/2023/day25/graph.dot",
-            format!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel])),
-        )
-        .unwrap();
-    }
+    //     // println!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel]));
+    //     // write graphviz to a file
+    //     std::fs::write(
+    //         "resources/2023/day25/graph.dot",
+    //         format!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel])),
+    //     )
+    //     .unwrap();
+    // }
 
     #[test]
     fn test_find_three_cut() {
@@ -153,4 +153,3 @@ mod tests {
         assert_eq!(result, 54);
     }
 }
-
