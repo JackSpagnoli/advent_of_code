@@ -1,7 +1,5 @@
-use std::fs;
-
-use itertools::Itertools;
 use regex::{Captures, Regex};
+use std::fs;
 
 pub mod task1 {
     use super::sum_mult;
@@ -34,21 +32,18 @@ impl From<Captures<'_>> for Instruction {
 }
 
 fn sum_mult(file: &str) -> u128 {
-    fs::read_to_string(file)
-        .expect("Error reading file")
-        .lines()
-        .flat_map(parse_line)
+    let input = fs::read_to_string(file).expect("Error reading file");
+
+    parse_line(&input)
+        .into_iter()
         .map(|instruction| instruction.a * instruction.b)
         .sum()
 }
 
 fn sum_with_break(file: &str) -> u128 {
-    let all_instructions = fs::read_to_string(file)
-        .expect("Error reading file")
-        .lines()
-        .join("");
+    let input = fs::read_to_string(file).expect("Error reading file");
 
-    parse_line_with_toggle(&all_instructions)
+    parse_line_with_toggle(&input)
         .into_iter()
         .map(|instruction| instruction.a * instruction.b)
         .sum()
