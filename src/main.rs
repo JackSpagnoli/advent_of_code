@@ -117,16 +117,14 @@ fn run_year_problems(year: &str, problems: Vec<ProblemDefinition>) {
 
     durations.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     println!("\n\nThe 5 slowest problems of {year} are:");
-    for (index, duration) in durations.iter().take(5) {
-        let problem_name = problems[*index].2;
+    for (index, duration) in durations.into_iter().take(5) {
+        let problem_name = problems[index].2;
         println!("Problem {} took {} seconds", problem_name, duration);
     }
 }
 
 fn check_problem(problem: &ProblemDefinition) -> f32 {
-    let problem_function = problem.0;
-    let expected = &problem.1;
-    let problem_name = problem.2;
+    let (problem_function, expected, problem_name) = problem;
 
     let now = Instant::now();
 
