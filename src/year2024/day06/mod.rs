@@ -9,8 +9,10 @@ pub mod task1 {
 }
 
 pub mod task2 {
+    use super::find_loops;
+
     pub fn ans() -> u128 {
-        0
+        find_loops("resources/2024/day06/input.txt")
     }
 }
 
@@ -25,7 +27,28 @@ fn count_distinct_points(file: &str) -> u128 {
     visited.len() as u128
 }
 
-#[derive(Debug)]
+fn find_loops(file: &str) -> u128 {
+    let initial_path = Path::from(file.to_string());
+
+    let new_obstacles = (0..initial_path.map_size.0)
+        .flat_map(|x| (0..initial_path.map_size.1).map(move |y| (x, y)))
+        .filter(|(x, y)| !initial_path.obstacles.contains(&(*x, *y)))
+        .collect::<Vec<_>>();
+
+    new_obstacles
+        .into_iter()
+        .filter(|(x, y)| {
+            let mut path: Path = initial_path.clone();
+            path.obstacles.insert((*x, *y));
+
+            while let Some(_) = path.next() {}
+
+            path.in_loop
+        })
+        .count() as u128
+}
+
+#[derive(Clone, Eq, PartialEq, Hash)]
 enum Direction {
     Up,
     Down,
@@ -33,17 +56,20 @@ enum Direction {
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 struct Agent {
     x: usize,
     y: usize,
     direction: Direction,
 }
 
+#[derive(Clone)]
 struct Path {
     agent: Agent,
     obstacles: HashSet<(usize, usize)>,
     map_size: (usize, usize),
+    visited: HashSet<Agent>,
+    in_loop: bool,
 }
 
 type FilePath = String;
@@ -78,10 +104,15 @@ impl From<FilePath> for Path {
 
         let agent = agent.unwrap();
 
+        let mut visited = HashSet::new();
+        visited.insert(agent.clone());
+
         Self {
             agent,
             obstacles,
             map_size,
+            visited,
+            in_loop: false,
         }
     }
 }
@@ -91,8 +122,6 @@ impl Iterator for Path {
 
     fn next(&mut self) -> Option<Self::Item> {
         let agent = &mut self.agent;
-
-        println!("Agent: {:?}", agent);
 
         let (next_x, next_y): (isize, isize) = match agent.direction {
             Direction::Up => (agent.x as isize, agent.y as isize - 1),
@@ -122,17 +151,30 @@ impl Iterator for Path {
         agent.x = next_x as usize;
         agent.y = next_y as usize;
 
+        if self.visited.contains(agent) {
+            self.in_loop = true;
+            return None;
+        }
+
+        self.visited.insert(agent.clone());
+
         Some((agent.x, agent.y))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::count_distinct_points;
+    use super::{count_distinct_points, find_loops};
 
     #[test]
     fn test_distinct_points() {
         let file = "resources/2024/day06/test_input.txt";
         assert_eq!(count_distinct_points(file), 41);
+    }
+
+    #[test]
+    fn test_find_loops() {
+        let file = "resources/2024/day06/test_input.txt";
+        assert_eq!(find_loops(file), 6);
     }
 }
