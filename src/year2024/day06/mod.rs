@@ -30,12 +30,24 @@ fn count_distinct_points(file: &str) -> u128 {
 fn find_loops(file: &str) -> u128 {
     let initial_path = Path::from(file.to_string());
 
-    let new_obstacles = (0..initial_path.map_size.0)
-        .flat_map(|x| (0..initial_path.map_size.1).map(move |y| (x, y)))
-        .filter(|(x, y)| !initial_path.obstacles.contains(&(*x, *y)))
-        .collect::<Vec<_>>();
+    let map_width = initial_path.map_size.0;
+    let map_height = initial_path.map_size.1;
 
-    new_obstacles
+    let mut run_path = initial_path.clone();
+    while let Some(_) = run_path.next() {}
+    let visited = run_path.visited;
+
+    // For each point visited, try adding an obstacle in front of the agent and see if it creates a loop
+    let effective_new_obstacles = visited
+        .into_iter()
+        .map(|agent| agent.direction.next_pos(agent.x, agent.y))
+        .filter(|(x, y)| *x >= 0 && *x < map_width && *y >= 0 && *y < map_height)
+        .filter(|(x, y)| !initial_path.obstacles.contains(&(*x as usize, *y as usize)))
+        .map(|(x, y)| (x as usize, y as usize))
+        // Collect to dedup
+        .collect::<HashSet<_>>();
+
+    effective_new_obstacles
         .into_iter()
         .filter(|(x, y)| {
             let mut path: Path = initial_path.clone();
@@ -56,6 +68,28 @@ enum Direction {
     Right,
 }
 
+impl Direction {
+    fn next_pos(&self, x: usize, y: usize) -> (isize, isize) {
+        let x = x as isize;
+        let y = y as isize;
+        match self {
+            Direction::Up => (x, y - 1),
+            Direction::Down => (x, y + 1),
+            Direction::Left => (x - 1, y),
+            Direction::Right => (x + 1, y),
+        }
+    }
+
+    fn rotate(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up,
+        }
+    }
+}
+
 #[derive(Clone, Eq, PartialEq, Hash)]
 struct Agent {
     x: usize,
@@ -67,7 +101,7 @@ struct Agent {
 struct Path {
     agent: Agent,
     obstacles: HashSet<(usize, usize)>,
-    map_size: (usize, usize),
+    map_size: (isize, isize),
     visited: HashSet<Agent>,
     in_loop: bool,
 }
@@ -77,8 +111,8 @@ impl From<FilePath> for Path {
     fn from(file_path: FilePath) -> Self {
         let content = std::fs::read_to_string(file_path).unwrap();
 
-        let map_width = content.clone().lines().next().unwrap().len();
-        let map_height = content.clone().lines().count();
+        let map_width = content.clone().lines().next().unwrap().len() as isize;
+        let map_height = content.clone().lines().count() as isize;
         let map_size = (map_width, map_height);
 
         let mut obstacles = HashSet::new();
@@ -123,12 +157,9 @@ impl Iterator for Path {
     fn next(&mut self) -> Option<Self::Item> {
         let agent = &mut self.agent;
 
-        let (next_x, next_y): (isize, isize) = match agent.direction {
-            Direction::Up => (agent.x as isize, agent.y as isize - 1),
-            Direction::Down => (agent.x as isize, agent.y as isize + 1),
-            Direction::Left => (agent.x as isize - 1, agent.y as isize),
-            Direction::Right => (agent.x as isize + 1, agent.y as isize),
-        };
+        self.visited.insert(agent.clone());
+
+        let (next_x, next_y): (isize, isize) = agent.direction.next_pos(agent.x, agent.y);
 
         if next_x < 0
             || next_x >= self.map_size.0 as isize
@@ -139,12 +170,7 @@ impl Iterator for Path {
         }
 
         if self.obstacles.contains(&(next_x as usize, next_y as usize)) {
-            self.agent.direction = match agent.direction {
-                Direction::Up => Direction::Right,
-                Direction::Right => Direction::Down,
-                Direction::Down => Direction::Left,
-                Direction::Left => Direction::Up,
-            };
+            self.agent.direction = agent.direction.rotate();
             return self.next();
         }
 
@@ -155,8 +181,6 @@ impl Iterator for Path {
             self.in_loop = true;
             return None;
         }
-
-        self.visited.insert(agent.clone());
 
         Some((agent.x, agent.y))
     }
