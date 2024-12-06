@@ -14,6 +14,6 @@ mkdir -p src/year$YEAR/day$DAY
 cp scripts/day_template.rs src/year$YEAR/day$DAY/mod.rs
 echo "pub mod day$DAY;" >> src/year$YEAR/mod.rs
 
-mkdir -p resources/year$YEAR/day$DAY
-touch resources/year$YEAR/day$DAY/input.txt
-touch resources/year$YEAR/day$DAY/test_input.txt
+mkdir -p resources/$YEAR/day$DAY
+touch resources/$YEAR/day$DAY/input.txt
+touch resources/$YEAR/day$DAY/test_input.txt
