@@ -34,14 +34,14 @@ fn line_value(line: &str, use_concat: bool) -> u128 {
         .map(|x| x.parse::<u128>().unwrap())
         .collect::<Vec<u128>>();
 
-    if is_valid_equation(total, operands, use_concat) {
+    if is_valid_equation(total, &operands, use_concat) {
         return total;
     } else {
         return 0;
     }
 }
 
-fn is_valid_equation(total: u128, operands: Vec<u128>, use_concat: bool) -> bool {
+fn is_valid_equation(total: u128, operands: &[u128], use_concat: bool) -> bool {
     if operands.len() == 2 {
         let is_addition = operands[0] + operands[1] == total;
         let is_multiplication = operands[0] * operands[1] == total;
@@ -53,25 +53,34 @@ fn is_valid_equation(total: u128, operands: Vec<u128>, use_concat: bool) -> bool
         return is_addition || is_multiplication || (use_concat && is_concat);
     }
 
-    if operands[0] >= total {
-        return false;
-    }
-
     let a = operands[0];
     let b = operands[1];
-    let c = operands[2..].to_vec();
+    let c = &operands[2..];
 
-    let sum_operand = a + b;
-    let mul_operand = a * b;
-    let concat_operand = format!("{}{}", a, b).parse::<u128>().unwrap();
+    let mut operands = Vec::with_capacity(3);
 
-    let sum_operands = vec![vec![sum_operand], c.clone()].concat();
-    let mul_operands = vec![vec![mul_operand], c.clone()].concat();
-    let concat_operands = vec![vec![concat_operand], c].concat();
+    if a + b <= total {
+        operands.push(a + b);
+    }
+    if a * b <= total {
+        operands.push(a * b);
+    }
 
-    is_valid_equation(total, sum_operands, use_concat)
-        || is_valid_equation(total, mul_operands, use_concat)
-        || (use_concat && is_valid_equation(total, concat_operands, use_concat))
+    if use_concat {
+        let concat = format!("{}{}", a, b).parse::<u128>().unwrap();
+        if concat <= total {
+            operands.push(concat);
+        }
+    }
+
+    for operand in operands {
+        let mut new_operands = vec![operand];
+        new_operands.extend_from_slice(c);
+        if is_valid_equation(total, &new_operands, use_concat) {
+            return true;
+        }
+    }
+    return false;
 }
 
 #[cfg(test)]
