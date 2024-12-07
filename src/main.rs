@@ -105,6 +105,8 @@ fn main() {
         define_problem!(year2024::day05::task2, 5273),
         define_problem!(year2024::day06::task1, 5212),
         define_problem!(year2024::day06::task2, 1767),
+        define_problem!(year2024::day07::task1, 8401132154762u128),
+        define_problem!(year2024::day07::task2, 95297119227552u128),
     ];
 
     run_year_problems("2024", problems_2024);
