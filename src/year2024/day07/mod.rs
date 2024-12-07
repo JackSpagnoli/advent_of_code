@@ -53,6 +53,10 @@ fn is_valid_equation(total: u128, operands: Vec<u128>, use_concat: bool) -> bool
         return is_addition || is_multiplication || (use_concat && is_concat);
     }
 
+    if operands[0] >= total {
+        return false;
+    }
+
     let a = operands[0];
     let b = operands[1];
     let c = operands[2..].to_vec();
