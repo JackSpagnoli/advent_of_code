@@ -1,5 +1,7 @@
 /* trunk-ignore(clippy/E0554) */
-#![feature(iter_next_chunk, int_roundings)]
+#![feature(iter_next_chunk, int_roundings, test)]
+extern crate test;
+pub use test::Bencher;
 
 pub type ProblemDefinition = (
     &'static dyn Fn() -> ProblemAnswer,
