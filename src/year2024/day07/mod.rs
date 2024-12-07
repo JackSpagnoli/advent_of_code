@@ -34,53 +34,43 @@ fn line_value(line: &str, use_concat: bool) -> u128 {
         .map(|x| x.parse::<u128>().unwrap())
         .collect::<Vec<u128>>();
 
-    if is_valid_equation(total, &operands, use_concat) {
+    if is_valid_equation(total, operands[0], operands[1], &operands[2..], use_concat) {
         return total;
     } else {
         return 0;
     }
 }
 
-fn is_valid_equation(total: u128, operands: &[u128], use_concat: bool) -> bool {
-    if operands.len() == 2 {
-        let is_addition = operands[0] + operands[1] == total;
-        let is_multiplication = operands[0] * operands[1] == total;
-        let is_concat = format!("{}{}", operands[0], operands[1])
-            .parse::<u128>()
-            .unwrap()
-            == total;
+fn is_valid_equation(total: u128, a: u128, b: u128, operands: &[u128], use_concat: bool) -> bool {
+    if operands.len() == 0 {
+        let is_addition = a + b == total;
+        let is_multiplication = a * b == total;
+        let is_concat = format!("{}{}", a, b).parse::<u128>().unwrap() == total;
 
         return is_addition || is_multiplication || (use_concat && is_concat);
     }
 
-    let a = operands[0];
-    let b = operands[1];
-    let c = &operands[2..];
+    let sum_operand = a + b;
+    let sum_possible = sum_operand <= total;
 
-    let mut operands = Vec::with_capacity(3);
+    let mul_operand = a * b;
+    let mul_possible = mul_operand <= total;
 
-    if a + b <= total {
-        operands.push(a + b);
-    }
-    if a * b <= total {
-        operands.push(a * b);
-    }
+    let concat_operand = format!("{}{}", a, b).parse::<u128>().unwrap();
+    let concat_possible = concat_operand <= total;
 
-    if use_concat {
-        let concat = format!("{}{}", a, b).parse::<u128>().unwrap();
-        if concat <= total {
-            operands.push(concat);
-        }
-    }
-
-    for operand in operands {
-        let mut new_operands = vec![operand];
-        new_operands.extend_from_slice(c);
-        if is_valid_equation(total, &new_operands, use_concat) {
-            return true;
-        }
-    }
-    return false;
+    (sum_possible && is_valid_equation(total, sum_operand, operands[0], &operands[1..], use_concat))
+        || (mul_possible
+            && is_valid_equation(total, mul_operand, operands[0], &operands[1..], use_concat))
+        || (use_concat
+            && concat_possible
+            && is_valid_equation(
+                total,
+                concat_operand,
+                operands[0],
+                &operands[1..],
+                use_concat,
+            ))
 }
 
 #[cfg(test)]
