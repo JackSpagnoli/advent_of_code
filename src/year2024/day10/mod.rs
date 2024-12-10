@@ -2,19 +2,19 @@ use std::collections::HashSet;
 
 pub mod task1 {
     pub fn ans() -> u128 {
-        super::trailhead_sum("resources/2024/day10/input.txt")
+        super::trailhead_sum("resources/2024/day10/input.txt").1
     }
 }
 
 pub mod task2 {
     pub fn ans() -> u128 {
-        0
+        super::trailhead_sum("resources/2024/day10/input.txt").0
     }
 }
 
 type Map = Vec<Vec<u8>>;
 
-fn trailhead_sum(file: &str) -> u128 {
+fn trailhead_sum(file: &str) -> (u128, u128) {
     let content = std::fs::read_to_string(file).unwrap();
 
     let map: Map = content
@@ -31,15 +31,17 @@ fn trailhead_sum(file: &str) -> u128 {
         .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, &cell)| (x, y, cell)))
         .filter(|(_, _, cell)| *cell == 0)
         .map(|(x, y, _)| (x, y))
-        .map(|pos| trails(&map, pos).len() as u128)
-        .sum()
+        .map(|pos| trails(&map, pos))
+        .fold((0, 0), |acc, counts| {
+            (acc.0 + counts.0, acc.1 + counts.1.len() as u128)
+        })
 }
 
-fn trails(map: &Map, pos: (usize, usize)) -> HashSet<(usize, usize)> {
+fn trails(map: &Map, pos: (usize, usize)) -> (u128, HashSet<(usize, usize)>) {
     let trail_height = map[pos.1][pos.0];
 
     if trail_height == 9 {
-        return HashSet::from_iter(vec![pos]);
+        return (1, HashSet::from_iter(vec![pos]));
     }
 
     let map_height = map.len();
@@ -56,10 +58,13 @@ fn trails(map: &Map, pos: (usize, usize)) -> HashSet<(usize, usize)> {
     .map(|(x, y)| (x as usize, y as usize))
     .filter(|(x, y)| map[*y][*x] == trail_height + 1)
     .map(|pos| trails(map, pos))
-    .fold(HashSet::new(), |mut acc, mut set| {
-        acc.extend(set.drain());
-        acc
-    })
+    .fold(
+        (0, HashSet::new()),
+        |(acc_count, mut acc_set), (count, mut set)| {
+            acc_set.extend(set.drain());
+            (acc_count + count, acc_set)
+        },
+    )
 }
 
 #[cfg(test)]
@@ -68,6 +73,10 @@ mod tests {
 
     #[test]
     fn test_trailhead_sum() {
-        assert_eq!(trailhead_sum("resources/2024/day10/test_input.txt"), 36);
+        assert_eq!(trailhead_sum("resources/2024/day10/test_input.txt").1, 36);
+    }
+    #[test]
+    fn test_trailheads() {
+        assert_eq!(trailhead_sum("resources/2024/day10/test_input.txt").0, 81);
     }
 }
