@@ -8,7 +8,7 @@ pub mod task1 {
 
 pub mod task2 {
     pub fn ans() -> u128 {
-        0
+        super::count_stones("resources/2024/day11/input.txt", 75)
     }
 }
 
