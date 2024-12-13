@@ -1,3 +1,4 @@
+use json::number::Number;
 use json::{parse, JsonValue};
 use std::cmp::Ordering::{Greater, Less};
 use std::fs;
@@ -20,74 +21,63 @@ pub mod task2 {
 
 fn check_file_sorting(file: &str) -> usize {
     let contents = fs::read_to_string(file).expect("Error reading file");
-    let mut lines = contents.lines();
+    contents
+        .split("\n\n")
+        .enumerate()
+        .filter(|(_, packets)| {
+            let mut lines = packets.lines().map(parse);
+            let line_1 = lines.next().unwrap().unwrap();
+            let line_2 = lines.next().unwrap().unwrap();
 
-    let mut sorted_index_sum: usize = 0;
-
-    let mut pair: usize = 1;
-    let mut line1 = lines.next().unwrap();
-    let mut line2 = lines.next().unwrap();
-    lines.next();
-
-    let mut break_after_next_pass = false;
-    loop {
-        let parsed_line_1 = parse(line1).unwrap();
-        let parsed_line_2 = parse(line2).unwrap();
-
-        if sorted_pair(&parsed_line_1, &parsed_line_2) == 1 {
-            sorted_index_sum += pair;
-        }
-        if break_after_next_pass {
-            break;
-        }
-
-        line1 = lines.next().unwrap();
-        line2 = lines.next().unwrap();
-        pair += 1;
-        if lines.next().is_none() {
-            break_after_next_pass = true;
-        }
-    }
-    sorted_index_sum
+            sorted_pair(line_1, line_2).unwrap_or(false)
+        })
+        .map(|(i, _)| i + 1)
+        .sum()
 }
 
-fn sorted_pair(element_1: &JsonValue, element_2: &JsonValue) -> isize {
-    if element_1.is_array() && element_2.is_array() {
-        let array_1: Vec<&JsonValue> = element_1.members().collect();
-        let array_2: Vec<&JsonValue> = element_2.members().collect();
-        for i in 0..array_1.len() {
-            if i >= array_2.len() {
-                return -1;
+fn sorted_pair(element_1: JsonValue, element_2: JsonValue) -> Option<bool> {
+    match (element_1, element_2) {
+        (JsonValue::Array(a), JsonValue::Array(b)) => {
+            let a_len = a.len();
+            let b_len = b.len();
+
+            for (a, b) in a.into_iter().zip(b.into_iter()) {
+                let sorted_pair = sorted_pair(a, b);
+                if sorted_pair.is_some() {
+                    return sorted_pair;
+                }
             }
-            let sorted_pair = sorted_pair(array_1[i], array_2[i]);
-            if sorted_pair == -1 || sorted_pair == 1 {
-                return sorted_pair;
+            if b_len < a_len {
+                return Some(false);
             }
+            return Some(true);
         }
-        return 1;
-    }
-    if element_1.is_number() && element_2.is_number() {
-        match element_1
-            .as_usize()
-            .unwrap()
-            .cmp(&element_2.as_usize().unwrap())
-        {
-            Less => return 1,
-            Greater => return -1,
-            _ => return 0,
+        (JsonValue::Number(a), JsonValue::Number(b)) => {
+            let a = unwrap_number(a);
+            let b = unwrap_number(b);
+            return match b.cmp(&a) {
+                Less => Some(false),
+                Greater => Some(true),
+                _ => None,
+            };
         }
+        (a, JsonValue::Number(b)) => {
+            let b = JsonValue::Array(vec![JsonValue::Number(b)]);
+            return sorted_pair(a, b);
+        }
+        (JsonValue::Number(a), b) => {
+            let a = JsonValue::Array(vec![JsonValue::Number(a)]);
+            return sorted_pair(a, b);
+        }
+        (_, _) => panic!("Yikes"),
     }
-    if !element_1.is_array() {
-        let mut array_1 = JsonValue::new_array();
-        array_1.push(element_1.clone()).expect("Shitters");
-        return sorted_pair(&array_1, element_2);
+}
+
+fn unwrap_number(number: Number) -> usize {
+    match usize::try_from(number) {
+        Ok(a) => a,
+        Err(_) => panic!("Yikes"),
     }
-    if !element_2.is_array() {
-        let mut array_2 = JsonValue::new_array();
-        array_2.push(element_2.clone()).expect("Shitters");
-        return sorted_pair(element_1, &array_2);
-    }
-    -1
 }
 
 fn decoder_key(file: &str) -> usize {
@@ -120,10 +110,10 @@ fn decoder_key(file: &str) -> usize {
     parsed_lines.push(parse("[[6]]").unwrap());
 
     parsed_lines.sort_by(|a, b| {
-        let s = sorted_pair(a, b);
+        let s = sorted_pair(a.clone(), b.clone());
         match s {
-            1 => Less,
-            -1 => Greater,
+            Some(true) => Less,
+            Some(false) => Greater,
             _ => panic!("Yikes"),
         }
     });
