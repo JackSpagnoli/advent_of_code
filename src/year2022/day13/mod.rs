@@ -1,6 +1,7 @@
+use itertools::Itertools;
 use json::number::Number;
 use json::{parse, JsonValue};
-use std::cmp::Ordering::{Greater, Less};
+use std::cmp::Ordering::{self, Equal, Greater, Less};
 use std::fs;
 
 pub mod task1 {
@@ -29,13 +30,15 @@ fn check_file_sorting(file: &str) -> usize {
             let line_1 = lines.next().unwrap().unwrap();
             let line_2 = lines.next().unwrap().unwrap();
 
-            sorted_pair(line_1, line_2).unwrap_or(false)
+            let sort = sorted_pair(line_1.clone(), line_2.clone());
+
+            sort == Less
         })
         .map(|(i, _)| i + 1)
         .sum()
 }
 
-fn sorted_pair(element_1: JsonValue, element_2: JsonValue) -> Option<bool> {
+fn sorted_pair(element_1: JsonValue, element_2: JsonValue) -> Ordering {
     match (element_1, element_2) {
         (JsonValue::Array(a), JsonValue::Array(b)) => {
             let a_len = a.len();
@@ -43,23 +46,21 @@ fn sorted_pair(element_1: JsonValue, element_2: JsonValue) -> Option<bool> {
 
             for (a, b) in a.into_iter().zip(b.into_iter()) {
                 let sorted_pair = sorted_pair(a, b);
-                if sorted_pair.is_some() {
+                if sorted_pair != Equal {
                     return sorted_pair;
                 }
             }
             if b_len < a_len {
-                return Some(false);
+                return Greater;
+            } else if b_len > a_len {
+                return Less;
             }
-            return Some(true);
+            return Equal;
         }
         (JsonValue::Number(a), JsonValue::Number(b)) => {
             let a = unwrap_number(a);
             let b = unwrap_number(b);
-            return match b.cmp(&a) {
-                Less => Some(false),
-                Greater => Some(true),
-                _ => None,
-            };
+            return a.cmp(&b);
         }
         (a, JsonValue::Number(b)) => {
             let b = JsonValue::Array(vec![JsonValue::Number(b)]);
@@ -81,53 +82,43 @@ fn unwrap_number(number: Number) -> usize {
 }
 
 fn decoder_key(file: &str) -> usize {
+    let dividers = vec![json::parse("[[2]]").unwrap(), json::parse("[[6]]").unwrap()];
+
     let contents = fs::read_to_string(file).expect("Error reading file");
-    let mut lines = contents.lines();
+    contents
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| parse(line).unwrap())
+        .chain(dividers.clone().into_iter())
+        .sorted_by(|a, b| sorted_pair(a.clone(), b.clone()))
+        .enumerate()
+        .filter(|(_, line)| dividers.contains(line))
+        .map(|(i, _)| i + 1)
+        .product()
+}
 
-    let mut parsed_lines: Vec<JsonValue> = vec![];
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let mut line1 = lines.next().unwrap();
-    let mut line2 = lines.next().unwrap();
-    lines.next();
-
-    let mut break_after_next_pass = false;
-    loop {
-        parsed_lines.push(parse(line1).unwrap());
-        parsed_lines.push(parse(line2).unwrap());
-
-        if break_after_next_pass {
-            break;
-        }
-
-        line1 = lines.next().unwrap();
-        line2 = lines.next().unwrap();
-        if lines.next().is_none() {
-            break_after_next_pass = true;
-        }
+    #[test]
+    fn test_check_file_sorting() {
+        assert_eq!(
+            check_file_sorting("resources/2022/day13/test_input.txt"),
+            13
+        );
     }
 
-    parsed_lines.push(parse("[[2]]").unwrap());
-    parsed_lines.push(parse("[[6]]").unwrap());
-
-    parsed_lines.sort_by(|a, b| {
-        let s = sorted_pair(a.clone(), b.clone());
-        match s {
-            Some(true) => Less,
-            Some(false) => Greater,
-            _ => panic!("Yikes"),
-        }
-    });
-
-    let mut decoder_key: usize = 1;
-    for (i, parsed_line) in parsed_lines.iter().enumerate() {
-        if parsed_line.dump() == *"[[2]]" {
-            decoder_key *= i + 1;
-        }
-        if parsed_line.dump() == *"[[6]]" {
-            decoder_key *= i + 1;
-            return decoder_key;
-        }
+    #[test]
+    fn test_decoder_key() {
+        assert_eq!(decoder_key("resources/2022/day13/test_input.txt"), 140);
     }
 
-    decoder_key
+    #[test]
+    fn test_sort() {
+        let a = json::parse("[[1],4]").unwrap();
+        let b = json::parse("[1,1,3,1,1]").unwrap();
+
+        assert_eq!(sorted_pair(a, b), Greater);
+    }
 }
