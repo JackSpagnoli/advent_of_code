@@ -4,30 +4,32 @@ pub mod task1 {
     use super::fewest_combinations;
 
     pub fn ans() -> u128 {
-        fewest_combinations("resources/2024/day13/input.txt")
+        fewest_combinations("resources/2024/day13/input.txt", false)
     }
 }
 
 pub mod task2 {
+    use super::fewest_combinations;
+
     pub fn ans() -> u128 {
-        0
+        fewest_combinations("resources/2024/day13/input.txt", true)
     }
 }
 
-fn fewest_combinations(file: &str) -> u128 {
+fn fewest_combinations(file: &str, conversion: bool) -> u128 {
     let content = std::fs::read_to_string(file).unwrap();
-    let games = content.split("\n\n").map(Game::from).collect::<Vec<Game>>();
+    let games = content.split("\n\n").map(Game::from);
 
-    games.into_iter().filter_map(Game::solve).sum()
+    games.filter_map(|game| game.solve(conversion)).sum()
 }
 
 struct Game {
-    a_x: isize,
-    a_y: isize,
-    b_x: isize,
-    b_y: isize,
-    p_x: isize,
-    p_y: isize,
+    a_x: i128,
+    a_y: i128,
+    b_x: i128,
+    b_y: i128,
+    p_x: i128,
+    p_y: i128,
 }
 
 impl From<&str> for Game {
@@ -48,52 +50,43 @@ impl From<&str> for Game {
 }
 
 impl Game {
-    pub fn solve(mut self) -> Option<u128> {
-        // From P, subtract A until it is a multiple of B
-        let mut a: u128 = 0;
-        loop {
-            if self.p_x < 0 || self.p_y < 0 {
-                return None;
-            }
-
-            if is_multiple_of((self.p_x, self.p_y), (self.b_x, self.b_y)) {
-                break;
-            }
-
-            self.p_x -= self.a_x;
-            self.p_y -= self.a_y;
-            a += 1;
+    pub fn solve(mut self, conversion: bool) -> Option<u128> {
+        if conversion {
+            self.p_x += 10000000000000;
+            self.p_y += 10000000000000;
         }
 
-        let b: u128 = (self.p_x / self.b_x) as u128;
+        let det = self.a_x * self.b_y - self.a_y * self.b_x;
+        if det == 0 {
+            return None;
+        }
 
-        Some(3 * a + b)
+        let a_numerator = self.p_x * self.b_y - self.p_y * self.b_x;
+        let b_numerator = self.p_y * self.a_x - self.p_x * self.a_y;
+
+        if a_numerator % det != 0 || b_numerator % det != 0 {
+            return None;
+        }
+
+        let a = a_numerator / det;
+        let b = b_numerator / det;
+
+        if a < 0 || b < 0 {
+            return None;
+        }
+
+        let cost = (3 * a + b) as u128;
+        Some(cost)
     }
-}
-
-fn is_multiple_of(a: (isize, isize), b: (isize, isize)) -> bool {
-    let (a_x, a_y) = a;
-    let (b_x, b_y) = b;
-
-    a_x % b_x == 0 && a_y % b_y == 0 && a_x / b_x == a_y / b_y
 }
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn test_is_multiple_of() {
-        assert_eq!(super::is_multiple_of((3, 3), (1, 1)), true);
-        assert_eq!(super::is_multiple_of((3, 3), (1, 2)), false);
-        assert_eq!(super::is_multiple_of((3, 3), (2, 1)), false);
-        assert_eq!(super::is_multiple_of((3, 3), (2, 2)), false);
-        assert_eq!(super::is_multiple_of((3, 3), (3, 1)), false);
-        assert_eq!(super::is_multiple_of((3, 3), (1, 3)), false);
-    }
 
     #[test]
     fn test_fewest_combinations() {
         assert_eq!(
-            super::fewest_combinations("resources/2024/day13/test_input.txt"),
+            super::fewest_combinations("resources/2024/day13/test_input.txt", false),
             480
         );
     }
