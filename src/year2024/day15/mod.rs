@@ -72,42 +72,7 @@ fn sum_pushed_coordinates(file: &str) -> u128 {
         });
 
     while let Some(command) = commands.next() {
-        let mut push_stack = vec![];
-
-        let (dx, dy) = command.as_delta();
-
-        let mut next = (robot.0, robot.1);
-        loop {
-            next = (next.0 + dx, next.1 + dy);
-
-            if walls.contains(&next) {
-                push_stack.clear();
-                break;
-            }
-
-            if boxes.contains(&next) {
-                push_stack.push(next);
-                continue;
-            }
-
-            break;
-        }
-
-        if !push_stack.is_empty() || !walls.contains(&next) {
-            robot = (robot.0 + dx, robot.1 + dy);
-        }
-
-        if push_stack.is_empty() {
-            continue;
-        }
-
-        let first_box = push_stack.first().unwrap();
-        let last_box = push_stack.last().unwrap();
-
-        let next = (last_box.0 + dx, last_box.1 + dy);
-
-        boxes.remove(&first_box);
-        boxes.insert(next);
+        make_move(command, &mut robot, &mut boxes, &walls);
     }
 
     boxes
@@ -115,6 +80,50 @@ fn sum_pushed_coordinates(file: &str) -> u128 {
         .map(|(x, y)| x + (100 * y))
         .map(|x| x as u128)
         .sum()
+}
+
+fn make_move(
+    command: Direction,
+    robot: &mut (isize, isize),
+    boxes: &mut HashSet<(isize, isize)>,
+    walls: &HashSet<(isize, isize)>,
+) {
+    let mut push_stack = vec![];
+
+    let (dx, dy) = command.as_delta();
+
+    let mut next = (robot.0, robot.1);
+    loop {
+        next = (next.0 + dx, next.1 + dy);
+
+        if walls.contains(&next) {
+            push_stack.clear();
+            break;
+        }
+
+        if boxes.contains(&next) {
+            push_stack.push(next);
+            continue;
+        }
+
+        break;
+    }
+
+    if !push_stack.is_empty() || !walls.contains(&next) {
+        *robot = (robot.0 + dx, robot.1 + dy);
+    }
+
+    if push_stack.is_empty() {
+        return;
+    }
+
+    let first_box = push_stack.first().unwrap();
+    let last_box = push_stack.last().unwrap();
+
+    let next = (last_box.0 + dx, last_box.1 + dy);
+
+    boxes.remove(&first_box);
+    boxes.insert(next);
 }
 
 #[cfg(test)]
