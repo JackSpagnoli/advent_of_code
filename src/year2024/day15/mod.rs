@@ -88,7 +88,7 @@ fn make_move(
     boxes: &mut HashSet<(isize, isize)>,
     walls: &HashSet<(isize, isize)>,
 ) {
-    let mut push_stack = vec![];
+    let mut boxes_to_push = HashSet::new();
 
     let (dx, dy) = command.as_delta();
 
@@ -97,33 +97,41 @@ fn make_move(
         next = (next.0 + dx, next.1 + dy);
 
         if walls.contains(&next) {
-            push_stack.clear();
+            boxes_to_push.clear();
             break;
         }
 
         if boxes.contains(&next) {
-            push_stack.push(next);
+            boxes_to_push.insert(next);
             continue;
         }
 
         break;
     }
 
-    if !push_stack.is_empty() || !walls.contains(&next) {
+    if !boxes_to_push.is_empty() || !walls.contains(&next) {
         *robot = (robot.0 + dx, robot.1 + dy);
     }
 
-    if push_stack.is_empty() {
+    if boxes_to_push.is_empty() {
         return;
     }
 
-    let first_box = push_stack.first().unwrap();
-    let last_box = push_stack.last().unwrap();
+    let new_boxes: HashSet<(isize, isize)> = boxes_to_push
+        .iter()
+        .map(|r#box| (r#box.0 + dx, r#box.1 + dy))
+        .collect();
 
-    let next = (last_box.0 + dx, last_box.1 + dy);
+    let boxes_to_remove = boxes_to_push.difference(&new_boxes);
+    let boxes_to_add = new_boxes.difference(&boxes_to_push);
 
-    boxes.remove(&first_box);
-    boxes.insert(next);
+    boxes_to_remove.for_each(|r#box| {
+        boxes.remove(r#box);
+    });
+
+    boxes_to_add.for_each(|r#box| {
+        boxes.insert(*r#box);
+    });
 }
 
 #[cfg(test)]
