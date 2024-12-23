@@ -123,7 +123,7 @@ fn main() {
         define_problem!(year2024::day14::task2, 7672),
         define_problem!(year2024::day15::task1, 1463512),
         define_problem!(year2024::day15::task2, 1486520),
-        define_problem!(year2024::day16::task1, 0),
+        define_problem!(year2024::day16::task1, 98484),
         define_problem!(year2024::day16::task2, 0),
     ];
 
