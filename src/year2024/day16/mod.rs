@@ -1,4 +1,7 @@
-use std::{collections::HashMap, fs};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
 pub mod task1 {
     use super::lowest_scoring_path;
@@ -43,17 +46,28 @@ fn lowest_scoring_path(file: &str) -> u128 {
 
     let mut frontier = vec![(start, Direction::Right)];
 
+    // Stores position, direction, and the previous turns that reach the position with the lowest score
     let mut scores = HashMap::new();
-    scores.insert((start, Direction::Right), 0);
+    scores.insert((start, Direction::Right), (0, HashSet::new()));
 
-    while let Some((pos, direction)) = frontier.pop() {
-        let mut score = *scores.get(&(pos, direction)).unwrap();
+    while let Some(current) = frontier.pop() {
+        let (pos, direction) = current;
+        let (mut score, _) = *scores.get(&(pos, direction)).unwrap();
 
         let rotations = adjacent_rotations(&direction);
-        for rotation in rotations.into_iter() {
-            if !scores.contains_key(&(pos, rotation)) {
-                scores.insert((pos, rotation), score + 1000);
-                frontier.push((pos, rotation));
+        for new_dir in rotations.into_iter() {
+            let rotation = (pos, new_dir);
+            if let Some((prev_score, prev_backtrack)) = scores.get_mut(&rotation) {
+                if &(score + 1000) < prev_score {
+                    *prev_score = score + 1000;
+                    *prev_backtrack = HashSet::from([current]);
+                    frontier.push(rotation);
+                } else if &(score + 1000) == prev_score {
+                    prev_backtrack.insert(current);
+                }
+            } else {
+                scores.insert(rotation, (score + 1000, HashSet::from([current])));
+                frontier.push(rotation);
             }
         }
 
@@ -79,51 +93,48 @@ fn lowest_scoring_path(file: &str) -> u128 {
         loop {
             x += step.0;
             y += step.1;
-            let pos = (x, y);
+            let new_pos = (x, y);
             score += 1;
 
             if &map[y as usize][x as usize] == &'#' {
                 break;
             }
 
-            let neighbours = neighbours(pos);
+            let neighbours = neighbours(new_pos);
             let valid_neighbours = neighbours
                 .into_iter()
                 .filter(|((x, y), _)| map[*y as usize][*x as usize] != '#')
                 .collect::<Vec<_>>();
 
-            if valid_neighbours.is_empty() && (x, y) != end {
+            if !(!valid_neighbours.is_empty() || new_pos == end) {
                 continue;
             }
 
-            if let Some(&prev_score) = scores.get(&(pos, direction)) {
-                if score < prev_score {
-                    scores.insert((pos, direction), score);
-                } else {
-                    continue;
+            // Add straight path
+            if let Some((prev_score, prev_backtrack)) = scores.get_mut(&(new_pos, direction)) {
+                // If score is lower, replace it
+                if &score < prev_score {
+                    *prev_score = score;
+                    *prev_backtrack = HashSet::from([current]);
+                    frontier.push((new_pos, direction));
+                } else if &score == prev_score {
+                    // If score matches, add last turn to the set
+                    prev_backtrack.insert(current);
                 }
+                // If score is higher, ignore it
             } else {
-                scores.insert((pos, direction), score);
+                scores.insert((new_pos, direction), (score, HashSet::from([current])));
+                frontier.push((new_pos, direction));
             }
 
-            for (_, new_dir) in valid_neighbours.into_iter() {
-                if let Some(&prev_score) = scores.get(&(pos, new_dir)) {
-                    if score < prev_score {
-                        scores.insert((pos, new_dir), score + 1000);
-                        frontier.push((pos, new_dir));
-                    }
-                } else {
-                    scores.insert((pos, new_dir), score + 1000);
-                    frontier.push((pos, new_dir));
-                }
-            }
+            break;
         }
     }
 
     scores
         .iter()
         .filter(|((pos, _), _)| pos == &end)
-        .map(|(_, score)| *score as u128)
+        .map(|(_, (score, _))| *score as u128)
         .min()
         .unwrap()
 }
