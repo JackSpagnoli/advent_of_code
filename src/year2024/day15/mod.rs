@@ -1,3 +1,4 @@
+use core::panic;
 use std::{collections::HashSet, fs};
 
 pub mod task1 {
@@ -185,11 +186,9 @@ fn make_move(
             }
             (Direction::Up, true) => {
                 frontier.insert((current.0, current.1 - 1));
-                if !walls.contains(&(current.0 - 1, current.1 - 1)) {
+                frontier.insert((current.0 + 1, current.1 - 1));
+                if boxes.contains(&(current.0 - 1, current.1 - 1)) {
                     frontier.insert((current.0 - 1, current.1 - 1));
-                }
-                if !walls.contains(&(current.0 + 1, current.1 - 1)) {
-                    frontier.insert((current.0 + 1, current.1 - 1));
                 }
             }
             (Direction::Down, false) => {
@@ -197,11 +196,9 @@ fn make_move(
             }
             (Direction::Down, true) => {
                 frontier.insert((current.0, current.1 + 1));
-                if !walls.contains(&(current.0 - 1, current.1 + 1)) {
+                frontier.insert((current.0 + 1, current.1 + 1));
+                if boxes.contains(&(current.0 - 1, current.1 + 1)) {
                     frontier.insert((current.0 - 1, current.1 + 1));
-                }
-                if !walls.contains(&(current.0 + 1, current.1 + 1)) {
-                    frontier.insert((current.0 + 1, current.1 + 1));
                 }
             }
         }
@@ -260,6 +257,16 @@ mod tests {
         assert_eq!(
             sum_pushed_coordinates("resources/2024/day15/test_input.txt", true),
             9021
+        );
+
+        assert_eq!(
+            sum_pushed_coordinates("resources/2024/day15/test_input_5.txt", true),
+            406
+        );
+
+        assert_eq!(
+            sum_pushed_coordinates("resources/2024/day15/test_input_6.txt", true),
+            509
         );
     }
 }

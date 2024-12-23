@@ -122,8 +122,9 @@ fn main() {
         define_problem!(year2024::day14::task1, 230686500),
         define_problem!(year2024::day14::task2, 7672),
         define_problem!(year2024::day15::task1, 1463512),
-        // 1473678 too low
-        define_problem!(year2024::day15::task2, 0),
+        define_problem!(year2024::day15::task2, 1486520),
+        define_problem!(year2024::day16::task1, 0),
+        define_problem!(year2024::day16::task2, 0),
     ];
 
     run_year_problems("2024", problems_2024);
