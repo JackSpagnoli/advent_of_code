@@ -12,8 +12,10 @@ pub mod task1 {
 }
 
 pub mod task2 {
+    use super::tiles_on_shortest_paths;
+
     pub fn ans() -> u128 {
-        0
+        tiles_on_shortest_paths("resources/2024/day16/input.txt")
     }
 }
 
@@ -44,10 +46,111 @@ fn lowest_scoring_path(file: &str) -> u128 {
             }
         });
 
+    solve_scores(map, start, end)
+        .into_iter()
+        .filter(|((pos, _), _)| pos == &end)
+        .map(|(_, (score, _))| score as u128)
+        .min()
+        .unwrap()
+}
+
+fn tiles_on_shortest_paths(file: &str) -> u128 {
+    // Solve the maze, then backtrack through the graph of shortest paths,
+    // collecting the tiles that are part of the shortest paths and count
+
+    let content = fs::read_to_string(file).unwrap();
+
+    let map: Vec<Vec<char>> = content.lines().map(|line| line.chars().collect()).collect();
+
+    let mut start = (0, 0);
+    let mut end = (0, 0);
+
+    map.iter()
+        .enumerate()
+        .flat_map(|(y, row)| row.into_iter().enumerate().map(move |(x, c)| (x, y, c)))
+        .for_each(|(x, y, c)| {
+            if c == &'S' {
+                start = (x as isize, y as isize);
+            } else if c == &'E' {
+                end = (x as isize, y as isize);
+            }
+        });
+
+    let scores = solve_scores(map, start, end);
+
+    let shortest_path = scores
+        .iter()
+        .filter(|((pos, _), _)| pos == &end)
+        .map(|(_, (score, _))| score)
+        .min()
+        .unwrap();
+
+    let end_backtracks = scores
+        .iter()
+        .filter(|((pos, _), _)| pos == &end)
+        .filter(|(_, (score, _))| score == shortest_path)
+        .map(|(_, (_, backtrack))| backtrack)
+        .flatten()
+        .collect::<HashSet<_>>();
+
+    // Pairs of tiles and backtracks which lead to them
+    let mut frontier = end_backtracks
+        .into_iter()
+        .map(|pos| (end, pos))
+        .collect::<HashSet<_>>();
+
+    let mut tiles = HashSet::new();
+    tiles.insert(end);
+
+    loop {
+        let current = match frontier.iter().next() {
+            Some(pos) => *pos,
+            None => break,
+        };
+        frontier.remove(&current);
+
+        let (end_pos, (prev_pos, direction)) = current;
+
+        let step = match direction {
+            Direction::Up => (0, -1),
+            Direction::Down => (0, 1),
+            Direction::Left => (-1, 0),
+            Direction::Right => (1, 0),
+        };
+
+        let (mut x, mut y) = prev_pos;
+        while (x, y) != end_pos {
+            tiles.insert((x, y));
+            x += step.0;
+            y += step.1;
+        }
+
+        tiles.insert(end_pos);
+
+        let (_, previous) = scores.get(&(*prev_pos, *direction)).unwrap();
+        previous
+            .into_iter()
+            .map(|pos| (*prev_pos, pos))
+            .for_each(|pos| {
+                frontier.insert(pos);
+            });
+    }
+
+    tiles.len() as u128
+}
+
+fn solve_scores(
+    map: Vec<Vec<char>>,
+    start: (isize, isize),
+    end: (isize, isize),
+) -> HashMap<((isize, isize), Direction), (i32, HashSet<((isize, isize), Direction)>)> {
     let mut frontier = vec![(start, Direction::Right)];
 
     // Stores position, direction, and the previous turns that reach the position with the lowest score
-    let mut scores = HashMap::new();
+    let mut scores: HashMap<
+        ((isize, isize), Direction),
+        (i32, HashSet<((isize, isize), Direction)>),
+    > = HashMap::new();
     scores.insert((start, Direction::Right), (0, HashSet::new()));
 
     while let Some(current) = frontier.pop() {
@@ -132,11 +235,6 @@ fn lowest_scoring_path(file: &str) -> u128 {
     }
 
     scores
-        .iter()
-        .filter(|((pos, _), _)| pos == &end)
-        .map(|(_, (score, _))| *score as u128)
-        .min()
-        .unwrap()
 }
 
 fn adjacent_rotations(direction: &Direction) -> [Direction; 2] {
@@ -160,6 +258,19 @@ mod tests {
         assert_eq!(
             lowest_scoring_path("resources/2024/day16/test_input.txt"),
             11048
+        )
+    }
+
+    #[test]
+    fn test_tiles_on_shortest_paths() {
+        assert_eq!(
+            tiles_on_shortest_paths("resources/2024/day16/test_input_2.txt"),
+            45
+        );
+
+        assert_eq!(
+            tiles_on_shortest_paths("resources/2024/day16/test_input.txt"),
+            64
         )
     }
 }
