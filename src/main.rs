@@ -122,6 +122,7 @@ fn main() {
         define_problem!(year2024::day14::task1, 230686500),
         define_problem!(year2024::day14::task2, 7672),
         define_problem!(year2024::day15::task1, 1463512),
+        // 1473678 too low
         define_problem!(year2024::day15::task2, 0),
     ];
 
